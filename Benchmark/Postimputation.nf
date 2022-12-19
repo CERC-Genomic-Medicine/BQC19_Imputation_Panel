@@ -9,7 +9,7 @@ process extract_chr_num {
    maxRetries 3
    cache "lenient"
    cpus 1
-   memory "4GB"
+   memory "16GB"
    time "1h"
    scratch true
 
@@ -31,7 +31,7 @@ process imputed_vs_truth {
    maxRetries 3
    cache "lenient"
    cpus 1
-   memory "4GB"
+   memory "16GB"
    time "1h"
    scratch true
 
@@ -54,10 +54,9 @@ workflow {
     truth_files = Channel.fromPath(params.truth_files_first_reference).map{ vcf -> [ vcf, vcf + ".tbi" ] }
     samples = Channel.from(file(params.test_files).readLines())
     truth_chromosome_files = extract_chr_num(truth_files)
-    truth_files_samples = compute_depth(truth_chromosome_files, samples)
     imputed_chromosome_files = extract_chr_num(imputed_files)
-    imputed_truth_chromosome_files = imputed_chromosome_files.join(truth_chromosome_files.groupTuple())
-    imputed_vs_truth(imputed_truth_chromosome_files)
+    imputed_truth_chromosome_files = imputed_chromosome_files.join(truth_chromosome_files)
+    imputed_vs_truth(imputed_truth_chromosome_files, samples)
 }
 
 
