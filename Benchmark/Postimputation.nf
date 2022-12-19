@@ -55,7 +55,7 @@ process imputed_vs_truth {
    scratch true
 
    input:
-   tuple chromosome, path(imputed_vcf), path(imputed_vcf_index), ref_name, path(truth_vcf), path(truth_vcf_index)
+   tuple val(chromosome), path(imputed_vcf), path(imputed_vcf_index), path(truth_vcf), path(truth_vcf_index)
    each individual
 
    output:
@@ -69,8 +69,8 @@ process imputed_vs_truth {
 
 
 workflow {
-    imputed_files = Channel.fromPath(params.imputed_files).map{ vcf -> [ vcf, vcf + ".tbi" ] }
-    truth_files = Channel.fromPath(params.truth_files_first_reference).map{ vcf -> [ vcf, vcf + ".tbi" ] }
+    imputed_files = Channel.fromPath(params.imputed_files_first_reference).map{ vcf -> [ vcf, vcf + ".tbi" ] }
+    truth_files = Channel.fromPath(params.truth_files).map{ vcf -> [ vcf, vcf + ".tbi" ] }
     samples = Channel.from(file(params.test_files).readLines())
     truth_chromosome_files = extract_chr_num(truth_files)
     imputed_chromosome_files = extract_chr_num2(imputed_files)
