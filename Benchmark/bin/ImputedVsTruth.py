@@ -72,6 +72,6 @@ if __name__ = "__main__":
     concordance, merge_df = ImputedVsTruth(path_truth, path_imputed, sample_name)
     result = {"Sample name": self.sample_name, "concordance" : self.concordance}
     df_res = pd.DataFrame(result)
-    df_res.to_csv(self.saving_path + "/" + self.sample_name + "_" + chrom_name + "_" + ref_name + "_concordance.txt", sep = "\t", index = None)
-    merge_df.to_csv(self.saving_path + "/" + self.sample_name + "_" + chrom_name + "_" + ref_name + "_imputation_qualities.txt", sep = "\t", index = None)
+    df_res.to_csv(self.saving_path + "_concordance.txt", sep = "\t", index = None)
+    merge_df.to_csv(self.saving_path + "_imputation_qualities.txt", sep = "\t", index = None)
     

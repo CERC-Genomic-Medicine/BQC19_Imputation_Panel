@@ -63,7 +63,7 @@ process imputed_vs_truth {
     publishDir "result/${individual}", pattern: "*.txt", mode: "copy"
 
     """
-    ImputedVsTruth.py -iv ${imputed_vcf} -tv ${truth_vcf} -s ${individual} -r ${ref_name} -c ${chromosome} -o ${output_path}
+    ImputedVsTruth.py -iv ${imputed_vcf} -tv ${truth_vcf} -s ${individual} -r ${ref_name} -c ${chromosome} -o ${individual}_${ref_name}_${chromosome}
     """
 }
 
@@ -77,11 +77,3 @@ workflow {
     imputed_truth_chromosome_files = imputed_chromosome_files.join(truth_chromosome_files)
     imputed_vs_truth(imputed_truth_chromosome_files, samples)
 }
-
-
-
-
-
-
-
-
