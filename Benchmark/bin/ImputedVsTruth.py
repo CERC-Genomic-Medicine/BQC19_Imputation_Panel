@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import pysam
 import pandas as pandas
 import os
@@ -10,6 +12,7 @@ argparser.add_argument('-iv', '--imputed_vcf', metavar = 'file', dest = 'in_imp_
 argparser.add_argument('-tv', '--truth_vcf', metavar = 'file', dest = 'in_truth_vcf', type = str, required = True, help = 'VCF file containing truth data.')
 argparser.add_argument('-s', '--sample_name', metavar = 'name', dest = 'in_sample_name', type = str, required = True, help = 'name of the sample that analysis performed on.')
 argparser.add_argument('-r', '--reference_name', metavar = 'name', dest = 'in_reference_name', type = str, required = True, help = 'name of the reference panel is used for imputation.')
+argparser.add_argument('-c', '--chromosome_name', metavar = 'name', dest = 'in_chr', type = str, required = True, help = 'name of the chromosome is used for processing.')
 argparser.add_argument('-o', '--output', metavar = 'file', dest = 'out_file_path', type = str, required = True, help = 'Output file path.')
 
 
@@ -65,9 +68,10 @@ if __name__ = "__main__":
     ref_name = args.in_reference_name
     path_imputed = args.in_imp_vcf
     path_truth = args.in_truth_vcf
+    chrom_name = args.in_chr
     concordance, merge_df = ImputedVsTruth(path_truth, path_imputed, sample_name)
     result = {"Sample name": self.sample_name, "concordance" : self.concordance}
     df_res = pd.DataFrame(result)
-    df_res.to_csv(self.saving_path + "/" + self.sample_name + "_" + ref_name + "_concordance.txt", sep = "\t", index = None)
-    merge_df.to_csv(self.saving_path + "/" + self.sample_name + "_" + ref_name + "_imputation_qualities.txt", sep = "\t", index = None)
+    df_res.to_csv(self.saving_path + "/" + self.sample_name + "_" + chrom_name + "_" + ref_name + "_concordance.txt", sep = "\t", index = None)
+    merge_df.to_csv(self.saving_path + "/" + self.sample_name + "_" + chrom_name + "_" + ref_name + "_imputation_qualities.txt", sep = "\t", index = None)
     
