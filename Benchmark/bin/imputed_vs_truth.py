@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 import pysam
-import pandas as pandas
+import pandas as pd 
 import os
+import argparse
 
 argparser = argparse.ArgumentParser(description = 
  'This script compares imputed data with truth data and calculate imputation concordance based on these analysis'
