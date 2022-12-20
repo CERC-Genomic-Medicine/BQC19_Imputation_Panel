@@ -61,7 +61,7 @@ def ImputedVsTruth(path_truth, path_imputed, sample_ID, imputed_flag = True):
 
 
 
-if __name__ = "__main__":
+if __name__ == "__main__":
     args = argparser.parse_args()
     sample_name = args.in_sample_name   
     saving_path = args.out_file_path
