@@ -64,7 +64,7 @@ process imputed_vs_truth {
    publishDir "result/${individual}", pattern: "*.txt", mode: "copy"
 
     """
-    imputed_vs_truth.py -iv ${imputed_vcf} -tv ${truth_vcf} -s ${individual} -r ${params.ref_name} -c ${chromosome} -o ${individual}_${params.ref_name}_${chromosome}
+    imputed_vs_truth.py -iv ${imputed_vcf} -tv ${truth_vcf} -s ${individual} -r ${params.ref_name} -c ${chromosome}
     """
 }
 
