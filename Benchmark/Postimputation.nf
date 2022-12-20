@@ -60,7 +60,7 @@ process imputed_vs_truth {
 
    output:
    path("*.txt")
-   
+
    publishDir "result/${individual}", pattern: "*.txt", mode: "copy"
 
     """
@@ -73,7 +73,6 @@ workflow {
     imputed_files = Channel.fromPath(params.imputed_files_first_reference).map{ vcf -> [ vcf, vcf + ".tbi" ] }
     truth_files = Channel.fromPath(params.truth_files).map{ vcf -> [ vcf, vcf + ".tbi" ] }
     samples = Channel.from(file(params.test_files).readLines())
-    samples.subscribe { println "value: $it" }
     truth_chromosome_files = extract_chr_num(truth_files)
     imputed_chromosome_files = extract_chr_num2(imputed_files).map{it:["chr"+it[0], it[1], it[2]]}
     imputed_truth_chromosome_files = imputed_chromosome_files.join(truth_chromosome_files)
