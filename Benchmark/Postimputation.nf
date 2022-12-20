@@ -46,8 +46,8 @@ process extract_chr_num2 {
 } 
 
 process imputed_vs_truth {
-   errorStrategy "retry"
-   maxRetries 3
+   //errorStrategy "retry"
+   //maxRetries 3
    cache "lenient"
    cpus 1
    memory "16GB"
