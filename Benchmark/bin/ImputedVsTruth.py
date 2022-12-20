@@ -74,4 +74,3 @@ if __name__ = "__main__":
     df_res = pd.DataFrame(result) 
     df_res.to_csv(saving_path + "_concordance.txt", sep = "\t", index = None)
     merge_df.to_csv(saving_path + "_imputation_qualities.txt", sep = "\t", index = None)
-    
