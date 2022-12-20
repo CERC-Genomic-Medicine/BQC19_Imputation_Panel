@@ -56,7 +56,7 @@ def ImputedVsTruth(path_truth, path_imputed, sample_ID, imputed_flag = True):
     merge_df["# alt allele imputed"] = pd.Series(x.count(1) for x in merge_df["GT_Imputed"])
     correct_count = list(merge_df["# alt allele truth"] == merge_df["# alt allele imputed"]).count(True)
     concordance = (correct_count/len(merge_df))*100
-    merge_df["imputation quality"] = pd.Series(self.df_merge["# alt allele truth"] == self.df_merge["# alt allele imputed"])
+    merge_df["imputation quality"] = pd.Series(merge_df["# alt allele truth"] == merge_df["# alt allele imputed"])
     return concordance, merge_df
 
 
@@ -65,13 +65,13 @@ if __name__ = "__main__":
     args = argparser.parse_args()
     sample_name = args.in_sample_name   
     saving_path = args.out_file_path
-    ref_name = args.in_reference_name
     path_imputed = args.in_imp_vcf
     path_truth = args.in_truth_vcf
     chrom_name = args.in_chr
+    ref_name = args.in_reference_name
     concordance, merge_df = ImputedVsTruth(path_truth, path_imputed, sample_name)
-    result = {"Sample name": self.sample_name, "concordance" : self.concordance}
-    df_res = pd.DataFrame(result)
-    df_res.to_csv(self.saving_path + "_concordance.txt", sep = "\t", index = None)
-    merge_df.to_csv(self.saving_path + "_imputation_qualities.txt", sep = "\t", index = None)
+    result = {"Sample name" : sample_name, "reference name" : ref_name,  "chromosome" : chrom_name, "concordance" : concordance}
+    df_res = pd.DataFrame(result) 
+    df_res.to_csv(saving_path + "_concordance.txt", sep = "\t", index = None)
+    merge_df.to_csv(saving_path + "_imputation_qualities.txt", sep = "\t", index = None)
     
