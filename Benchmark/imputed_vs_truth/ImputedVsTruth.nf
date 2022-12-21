@@ -74,7 +74,7 @@ workflow {
     truth_files = Channel.fromPath(params.truth_files).map{ vcf -> [ vcf, vcf + ".tbi" ] }
     samples = Channel.from(file(params.test_files).readLines())
     truth_chromosome_files = extract_chr_num(truth_files)
-    imputed_chromosome_files = extract_chr_num2(imputed_files).map{it:["chr"+it[0], it[1], it[2]]}
+    imputed_chromosome_files = extract_chr_num2(imputed_files).map{it[0][0] != "c" ? ["chr"+it[0], it[1], it[2]] : it}
     imputed_truth_chromosome_files = imputed_chromosome_files.join(truth_chromosome_files)
     imputed_vs_truth(imputed_truth_chromosome_files, samples)
 }
