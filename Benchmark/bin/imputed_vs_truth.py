@@ -72,4 +72,4 @@ if __name__ == "__main__":
     result = {"Sample name" : [sample_name], "reference name" : [ref_name],  "chromosome" : [chrom_name], "concordance" : [concordance]}
     df_res = pd.DataFrame(result) 
     df_res.to_csv(sample_name + "_" + chrom_name + "_" + ref_name + "_concordance.txt", sep = "\t", index = None)
-    merge_df.to_csv(saving_path + "_imputation_qualities.txt", sep = "\t", index = None)
+    merge_df.to_csv(sample_name + "_" + chrom_name + "_" + ref_name + "_imputation_qualities.txt", sep = "\t", index = None)
