@@ -57,6 +57,7 @@ def ImputedVsTruth(path_truth, path_imputed, sample_ID, imputed_flag = True):
     correct_count = list(merge_df["# alt allele truth"] == merge_df["# alt allele imputed"]).count(True)
     concordance = (correct_count/len(merge_df))*100
     merge_df["imputation quality"] = pd.Series(merge_df["# alt allele truth"] == merge_df["# alt allele imputed"])
+    merge_df = merge_df[["CHROM", "POS", "REF", "ALT", "imputation quality"]]
     return concordance, merge_df
 
 
