@@ -58,7 +58,13 @@ def ImputedVsTruth(path_truth, path_imputed, sample_ID, imputed_flag = True):
     concordance = (correct_count/len(merge_df))*100
     merge_df["imputation quality"] = pd.Series(merge_df["# alt allele truth"] == merge_df["# alt allele imputed"])
     merge_df = merge_df[["CHROM", "POS", "REF", "ALT", "imputation quality"]]
-    return concordance, merge_df
+    truth_only_df = imputed_df.merge(truth_df, on = ["CHROM", "POS", "REF", "ALT"], indicator=True)
+    truth_only_df = truth_only_df[truth_only_df["_merge"] == "right_only"]
+    truth_only_df["imputation quality"] = pd.Series(['missing' for i in range(len(truth_only_df))])
+    final_df = pd.concat(merge_df, truth_only_df)
+    final_df = final_df.sort_values(by=["POS"])
+    missing = (len(truth_only_df)/len(truth_df))*100
+    return missing, concordance, final_df
 
 
 
@@ -69,8 +75,8 @@ if __name__ == "__main__":
     path_truth = args.in_truth_vcf
     chrom_name = args.in_chr
     ref_name = args.in_reference_name
-    concordance, merge_df = ImputedVsTruth(path_truth, path_imputed, sample_name)
-    result = {"Sample name" : [sample_name], "reference name" : [ref_name],  "chromosome" : [chrom_name], "concordance" : [concordance]}
+    missing, concordance, merge_df = ImputedVsTruth(path_truth, path_imputed, sample_name)
+    result = {"Sample name" : [sample_name], "reference name" : [ref_name],  "chromosome" : [chrom_name], "concordance" : [concordance], "missing" : [missing]}
     df_res = pd.DataFrame(result) 
     df_res.to_csv(sample_name + "_" + chrom_name + "_" + ref_name + "_concordance.txt", sep = "\t", index = None)
     merge_df.to_csv(sample_name + "_" + chrom_name + "_" + ref_name + "_imputation_qualities.txt", sep = "\t", index = None)
