@@ -28,6 +28,9 @@ process imputed_vs_imputed {
     """
 }
 
+//process generate_plots {
+
+//}
 
 workflow {
     first_reference_file = Channel.fromPath(params.post_imputation_files_first_reference).\
