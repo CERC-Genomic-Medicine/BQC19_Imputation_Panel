@@ -61,7 +61,8 @@ process imputed_vs_truth {
    output:
    path("*.txt")
 
-   publishDir "result/${individual}", pattern: "*.txt", mode: "copy"
+   publishDir "result/concordance/", pattern: "*_concordance.txt", mode: "copy"
+   publishDir "result/imputation_qualities/", pattern: "*_imputation_qualities.txt", mode: "copy"
 
     """
     imputed_vs_truth.py -iv ${imputed_vcf} -tv ${truth_vcf} -s ${individual} -r ${params.ref_name} -c ${chromosome}
@@ -73,8 +74,11 @@ workflow {
     imputed_files = Channel.fromPath(params.imputed_files_first_reference).map{ vcf -> [ vcf, vcf + ".tbi" ] }
     truth_files = Channel.fromPath(params.truth_files).map{ vcf -> [ vcf, vcf + ".tbi" ] }
     samples = Channel.from(file(params.test_files).readLines())
+
     truth_chromosome_files = extract_chr_num(truth_files)
-    imputed_chromosome_files = extract_chr_num2(imputed_files).map{it[0][0] != "c" ? ["chr"+it[0], it[1], it[2]] : it}
+    imputed_chromosome_files = extract_chr_num2(imputed_files).map{it[0][0] != "c" ? ["chr" + it[0], it[1], it[2]] : it}
+
     imputed_truth_chromosome_files = imputed_chromosome_files.join(truth_chromosome_files)
+    
     imputed_vs_truth(imputed_truth_chromosome_files, samples)
 }

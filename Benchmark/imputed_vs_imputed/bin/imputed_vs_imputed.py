@@ -128,9 +128,9 @@ if __name__ == "__main__":
 
 
     df_res = pd.DataFrame(result) 
-    df_res.to_csv(sample_name + "_" + chrom_name + "_" + first_reference_name + "_" second_reference_name + "_post_imputation_analysis.txt", sep = "\t", index = None)
-    df_bfws.to_csv(sample_name + "_" + chrom_name + "_badly_" + first_reference_name + "_well_" + second_reference_name + ".txt", sep = "\t", index = None)
-    df_wfbs.to_csv(sample_name + "_" + chrom_name + "_well_" + first_reference_name + "_badly_" + second_reference_name + ".txt", sep = "\t", index = None)
-    df_wfms.to_csv(sample_name + "_" + chrom_name + "_well_" + first_reference_name + "_missing_" + second_reference_name + ".txt", sep = "\t", index = None)
-    df_wsmf.to_csv(sample_name + "_" + chrom_name + "_missing_" + first_reference_name + "_well_" + second_reference_name + ".txt", sep = "\t", index = None)
-    df_mfms.to_csv(sample_name + "_" + chrom_name + "_missing_" + first_reference_name + "_missing_" + second_reference_name + ".txt", sep = "\t", index = None)
+    df_res.to_csv(sample_name + "_" + chrom_name + "_" + first_reference_name + "_" second_reference_name + "_" + mode + "_post_imputation_analysis.txt", sep = "\t", index = None)
+    df_bfws.to_csv(sample_name + "_" + chrom_name + "_badly_" + first_reference_name + "_well_" + second_reference_name + "_" + mode + "_bw.txt", sep = "\t", index = None)
+    df_wfbs.to_csv(sample_name + "_" + chrom_name + "_well_" + first_reference_name + "_badly_" + second_reference_name + "_" + mode + "_bw.txt", sep = "\t", index = None)
+    df_wfms.to_csv(sample_name + "_" + chrom_name + "_well_" + first_reference_name + "_missing_" + second_reference_name + "_" + mode + "_wm.txt", sep = "\t", index = None)
+    df_wsmf.to_csv(sample_name + "_" + chrom_name + "_missing_" + first_reference_name + "_well_" + second_reference_name + "_" + mode + "_wm.txt", sep = "\t", index = None)
+    df_mfms.to_csv(sample_name + "_" + chrom_name + "_missing_" + first_reference_name + "_missing_" + second_reference_name + "_" + mode + "_mm.txt", sep = "\t", index = None)

@@ -3,7 +3,7 @@
 * VERSION: 1.0
 * YEAR: 2022
 */
-process extract_chr_num {
+process imputed_vs_imputed {
    errorStrategy "retry"
    maxRetries 3
    cache "lenient"
@@ -13,68 +13,30 @@ process extract_chr_num {
    scratch true
 
    input:
-   tuple path(vcf), path(vcf_index)
-
-
-   output:
-   tuple stdout, path(vcf), path(vcf_index)
-
-    """
-    tabix -l ${vcf}
-    """
-} 
-
-process extract_chr_num2 {
-   errorStrategy "retry"
-   maxRetries 3
-   cache "lenient"
-   cpus 1
-   memory "16GB"
-   time "1h"
-   scratch true
-
-   input:
-   tuple path(vcf), path(vcf_index)
-
-
-   output:
-   tuple stdout, path(vcf), path(vcf_index)
-
-    """
-    tabix -l ${vcf}
-    """
-} 
-
-process imputed_vs_truth {
-   //errorStrategy "retry"
-   //maxRetries 3
-   cache "lenient"
-   cpus 1
-   memory "16GB"
-   time "1h"
-   scratch true
-
-   input:
-   tuple val(chromosome), path(imputed_vcf), path(imputed_vcf_index), path(truth_vcf), path(truth_vcf_index)
-   each individual
+   tuple val(sample_name), val(chromosome), val(first_reference_name), path(first_post_imputation_file), val(second_reference_name), path(second_post_impputation_file)
 
    output:
    path("*.txt")
 
-   publishDir "result/${individual}", pattern: "*.txt", mode: "copy"
+   publishDir "result/${params.mode}/post_imputation_analysis/", pattern: "*_post_imputation_analysis.txt", mode: "copy"
+   publishDir "result/${params.mode}/bad_one_well_other/", pattern: "*_bw.txt", mode: "copy"
+   publishDir "result/${params.mode}/well_one_missing_other/", pattern: "*_wm.txt", mode: "copy"
+   publishDir "result/${params.mode}/missing_both/", pattern: "*_mm.txt", mode: "copy"
 
     """
-    imputed_vs_truth.py -iv ${imputed_vcf} -tv ${truth_vcf} -s ${individual} -r ${params.ref_name} -c ${chromosome}
+    imputed_vs_imputed.py -fq ${first_post_imputation_file} -sq ${second_post_imputation_file}  -s ${sample_name}  -fr ${first_reference_name} -sr ${second_reference_name} -c ${chromosome} -m ${params.mode}
     """
 }
 
 
 workflow {
-    imputed_files = Channel.fromPath(params.imputed_files_first_reference).map{ vcf -> [ vcf, vcf + ".tbi" ] }
-    truth_files = Channel.fromPath(params.truth_files).map{ vcf -> [ vcf, vcf + ".tbi" ] }
-    samples = Channel.from(file(params.test_files).readLines())
-    truth_chromosome_files = extract_chr_num(truth_files)
-    imputed_chromosome_files = extract_chr_num2(imputed_files).map{it[0][0] != "c" ? ["chr"+it[0], it[1], it[2]] : it}
-    imputed_truth_chromosome_files = imputed_chromosome_files.join(truth_chromosome_files)
-    imputed_vs_truth(imputed_truth_chromosome_files, samples)
+    first_reference_file = Channel.fromPath(params.post_imputation_files_first_reference).\
+    map{ file -> file.name.toString().tokenize('_')[0:3] + [file ] }
+
+    second_reference_file = Channel.fromPath(params.post_imputation_files_second_reference).\
+    map{ file -> file.name.toString().tokenize('_')[0:3] + [file ] }
+
+    combine_channel = first_reference_file.join(second_reference_file, by = [0, 1])
+
+    
 }
