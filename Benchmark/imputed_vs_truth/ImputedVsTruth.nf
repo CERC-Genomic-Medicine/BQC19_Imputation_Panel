@@ -4,8 +4,8 @@
 * YEAR: 2022
 */
 process extract_chr_num {
-   errorStrategy "retry"
-   maxRetries 3
+   //errorStrategy "retry"
+   //maxRetries 3
    cache "lenient"
    cpus 1
    memory "16GB"
@@ -25,8 +25,8 @@ process extract_chr_num {
 } 
 
 process extract_chr_num2 {
-   errorStrategy "retry"
-   maxRetries 3
+   //errorStrategy "retry"
+   //maxRetries 3
    cache "lenient"
    cpus 1
    memory "16GB"
