@@ -4,16 +4,16 @@
 * YEAR: 2022
 */
 process imputed_vs_imputed {
-   errorStrategy "retry"
-   maxRetries 3
+   //errorStrategy "retry"
+   //maxRetries 3
    cache "lenient"
    cpus 1
    memory "16GB"
    time "1h"
-   scratch true
+   //scratch true
 
    input:
-   tuple val(sample_name), val(chromosome), val(first_reference_name), path(first_post_imputation_file), val(second_reference_name), path(second_post_impputation_file)
+   tuple val(sample_name), val(chromosome), val(first_reference_name), path(first_post_imputation_file), val(second_reference_name), path(second_post_imputation_file)
 
    output:
    path("*.txt")
@@ -33,13 +33,13 @@ process imputed_vs_imputed {
 //}
 
 workflow {
-    first_reference_file = Channel.fromPath(params.post_imputation_files_first_reference).\
-    map{ file -> file.name.toString().tokenize('_')[0:3] + [file ] }
+    first_reference_file = Channel.fromPath(params.post_imputation_files_first_reference).map{ file -> [file.name.toString().tokenize('_').get(0), file.name.toString().tokenize('_').get(1), file.name.toString().tokenize('_').get(2), file] }
 
-    second_reference_file = Channel.fromPath(params.post_imputation_files_second_reference).\
-    map{ file -> file.name.toString().tokenize('_')[0:3] + [file ] }
+    second_reference_file = Channel.fromPath(params.post_imputation_files_second_reference).map{ file -> [file.name.toString().tokenize('_').get(0), file.name.toString().tokenize('_').get(1), file.name.toString().tokenize('_').get(2), file] }
 
-    combine_channel = first_reference_file.join(second_reference_file, by = [0, 1])
+    combine_channel = first_reference_file.join(second_reference_file, by: [0, 1])
+    combine_channel.view()
+    //imputed_vs_imputed(combine_channel)
 
     
 }

@@ -52,7 +52,7 @@ process imputed_vs_truth {
    cpus 1
    memory "16GB"
    time "1h"
-   scratch true
+   //scratch true
 
    input:
    tuple val(chromosome), path(imputed_vcf), path(imputed_vcf_index), path(truth_vcf), path(truth_vcf_index)
