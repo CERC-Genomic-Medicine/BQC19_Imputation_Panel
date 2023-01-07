@@ -16,10 +16,12 @@ argparser.add_argument('-c', '--chromosome_name', metavar = 'name', dest = 'in_c
 argparser.add_argument('-m', '--mode', metavar = 'name', dest = 'mode', type = str, required = True, help = 'mode of analysis:{r : raw files, wc : without centromeres, hc : high coverage regions}')
 
 def count_badly_imputed(df):
+    df = df[df["imputation quality"] != "missing"]
     df_bad = df[df["imputation quality"] == False]
     return len(df_bad)
 
 def count_well_imputed(df):
+    df = df[df["imputation quality"] != "missing"]
     df_well = df[df["imputation quality"] == True]
     return len(df_well)
 
@@ -35,43 +37,51 @@ def count_shared_variants(df_first, df_second):
 
 def count_badly_imputed_first_present_second(df_first, df_second):
     df_second = df_second[df_second["imputation quality"] != "missing"]
+    df_first = df_first[df_first["imputation quality"] != "missing"]
     df_first = df_first[df_first["imputation quality"] == False]
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
     return len(df_merge), df_merge
 
 def count_badly_imputed_in_one_well_imputed_other(df_first, df_second):
+    df_second = df_second[df_second["imputation quality"] != "missing"]
+    df_first = df_first[df_first["imputation quality"] != "missing"]
     df_first = df_first.rename(columns={"imputation quality":"first imputation quality"})
     df_second = df_second.rename(columns={"imputation quality":"second imputation quality"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
-    df_merge = df_merge[(df_merge["first imputation quality"] == False) and (df_merge["second imputation quality"] == True)]
-    return len(df_merge)
+    df_merge = df_merge[(df_merge["first imputation quality"] == False) & (df_merge["second imputation quality"] == True)]
+    return len(df_merge), df_merge
 
 def count_present_in_one_missing_in_other(df_first, df_second):
     df_first = df_first.rename(columns={"imputation quality":"first imputation quality"})
     df_second = df_second.rename(columns={"imputation quality":"second imputation quality"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
-    df_merge = df_merge[(df_merge["first imputation quality"] != "missing") and (df_merge["second imputation quality"] == "missing")]
+    df_merge = df_merge[(df_merge["first imputation quality"] != "missing") & (df_merge["second imputation quality"] == "missing")]
     return len(df_merge)
 
 def count_well_imputed_in_one_missing_in_other(df_first, df_second):
+    df_first = df_first[df_first["imputation quality"] != "missing"]
     df_first = df_first.rename(columns={"imputation quality":"first imputation quality"})
     df_second = df_second.rename(columns={"imputation quality":"second imputation quality"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
-    df_merge = df_merge[(df_merge["first imputation quality"] == True) and (df_merge["second imputation quality"] == "missing")]
+    df_merge = df_merge[(df_merge["first imputation quality"] == True) & (df_merge["second imputation quality"] == "missing")]
     return len(df_merge), df_merge
 
 def count_well_imputed_both(df_first, df_second):
+    df_second = df_second[df_second["imputation quality"] != "missing"]
+    df_first = df_first[df_first["imputation quality"] != "missing"]
     df_first = df_first.rename(columns={"imputation quality":"first imputation quality"})
     df_second = df_second.rename(columns={"imputation quality":"second imputation quality"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
-    df_merge = df_merge[(df_merge["first imputation quality"] == True) and (df_merge["second imputation quality"] == True)]
+    df_merge = df_merge[(df_merge["first imputation quality"] == True) & (df_merge["second imputation quality"] == True)]
     return len(df_merge)
 
 def count_badly_imputed_both(df_first, df_second):
+    df_second = df_second[df_second["imputation quality"] != "missing"]
+    df_first = df_first[df_first["imputation quality"] != "missing"]
     df_first = df_first.rename(columns={"imputation quality":"first imputation quality"})
     df_second = df_second.rename(columns={"imputation quality":"second imputation quality"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
-    df_merge = df_merge[(df_merge["first imputation quality"] == False) and (df_merge["second imputation quality"] == False)]
+    df_merge = df_merge[(df_merge["first imputation quality"] == False) & (df_merge["second imputation quality"] == False)]
     return len(df_merge)
 
 
@@ -79,7 +89,7 @@ def count_missing_both(df_first, df_second):
     df_first = df_first.rename(columns={"imputation quality":"first imputation quality"})
     df_second = df_second.rename(columns={"imputation quality":"second imputation quality"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
-    df_merge = df_merge[(df_merge["first imputation quality"] == "missing") and (df_merge["second imputation quality"] == "missing")]
+    df_merge = df_merge[(df_merge["first imputation quality"] == "missing") & (df_merge["second imputation quality"] == "missing")]
     return len(df_merge), df_merge
 
 if __name__ == "__main__":
@@ -123,7 +133,7 @@ if __name__ == "__main__":
      "Missing " + first_reference_name : [cmf], "Missing " + second_reference_name : [cms], "Shared variants " : [cshv], "Disconcordant " + first_reference_name + " Present " + second_reference_name : [cbfps],\
       "Disconcordant " + second_reference_name + " Present " + first_reference_name: [cbspf], "Disconcordant " + first_reference_name + " Concordant " + second_reference_name : [cbfws], \
       "Disconcordant " + second_reference_name + " Concordant " + first_reference_name: [cwfbs], "Present " + first_reference_name + " Missing " + second_reference_name : [cpfms], \
-      "Present " + first_reference_name + " Missing " + second_reference_name: [cmfsp], "Concordant " + first_reference_name + " Missing " + second_reference_name : [cwfms],\
+      "Present " + first_reference_name + " Missing " + second_reference_name: [cmfps], "Concordant " + first_reference_name + " Missing " + second_reference_name : [cwfms],\
       "Concordant " + second_reference_name + " Missing " + first_reference_name : [cwsmf], "Concordant in both" : [cwfws], "Disconcordant in both" : [cbfbs], "Missing in both" : [cmfms]}
 
 
