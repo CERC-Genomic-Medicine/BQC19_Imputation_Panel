@@ -3,47 +3,54 @@
 * VERSION: 1.0
 * YEAR: 2022
 */
-process extract_chr_num {
-   //errorStrategy "retry"
-   //maxRetries 3
+
+process get_imputed_chr_names {
+   executor "local"
    cache "lenient"
    cpus 1
-   memory "16GB"
-   time "1h"
-   scratch true
 
    input:
    tuple path(vcf), path(vcf_index)
 
-
    output:
    tuple stdout, path(vcf), path(vcf_index)
 
-    """
-    tabix -l ${vcf}
-    """
+   """
+   tabix -l ${vcf}
+   """
 } 
 
-process extract_chr_num2 {
-   //errorStrategy "retry"
-   //maxRetries 3
+process get_truth_chr_names {
+   executor "local"
    cache "lenient"
    cpus 1
-   memory "16GB"
-   time "1h"
-   scratch true
 
    input:
    tuple path(vcf), path(vcf_index)
 
-
    output:
    tuple stdout, path(vcf), path(vcf_index)
 
-    """
-    tabix -l ${vcf}
-    """
-} 
+   """
+   tabix -l ${vcf}
+   """
+}
+
+process get_imputed_sample_names {
+   executor "local"
+   cache "lenient"
+   cpus 1
+
+   input:
+   tuple path(vcf), path(vcf_index)
+
+   output:
+   stdout
+
+   """
+   tabix -H ${vcf} | tail -n1 | cut -f10-
+   """
+}
 
 process imputed_vs_truth {
    //errorStrategy "retry"
@@ -71,14 +78,16 @@ process imputed_vs_truth {
 
 
 workflow {
-    imputed_files = Channel.fromPath(params.imputed_files_first_reference).map{ vcf -> [ vcf, vcf + ".tbi" ] }
+    imputed_files = Channel.fromPath(params.imputed_files).map{ vcf -> [ vcf, vcf + ".tbi" ] }
     truth_files = Channel.fromPath(params.truth_files).map{ vcf -> [ vcf, vcf + ".tbi" ] }
-    samples = Channel.from(file(params.test_files).readLines())
-
-    truth_chromosome_files = extract_chr_num(truth_files)
-    imputed_chromosome_files = extract_chr_num2(imputed_files).map{it[0][0] != "c" ? ["chr" + it[0], it[1], it[2]] : it}
-
-    imputed_truth_chromosome_files = imputed_chromosome_files.join(truth_chromosome_files)
     
-    imputed_vs_truth(imputed_truth_chromosome_files, samples)
+    imputed_by_chr = get_imputed_chr_names(imputed_files).map{ it -> [it[0].startsWith("chr") ? it[0].substring(3).trim() : it[0].trim(), it[1], it[2]] }
+    truth_by_chr = get_truth_chr_names(truth_files).map{ it -> [it[0].startsWith("chr") ? it[0].substring(3).trim() : it[0].trim(), it[1], it[2]] }
+
+    all_by_chr = imputed_by_chr.join(truth_by_chr)
+    imputed_sample_names = get_imputed_sample_names(Channel.fromPath(params.imputed_files).first().map{ vcf -> [vcf, vcf + ".tbi"] }).flatMap{ it -> it.split("\t") }
+
+    all_by_chr.view()
+    
+    //imputed_vs_truth(imputed_truth_chromosome_files, samples)
 }
