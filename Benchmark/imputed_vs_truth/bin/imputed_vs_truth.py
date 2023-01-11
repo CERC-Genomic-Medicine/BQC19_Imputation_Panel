@@ -58,7 +58,7 @@ def ImputedVsTruth(path_truth, path_imputed, sample_ID, imputed_flag = True):
     concordance = (correct_count/len(merge_df))*100
     merge_df["imputation quality"] = pd.Series(merge_df["# alt allele truth"] == merge_df["# alt allele imputed"])
     merge_df = merge_df[["CHROM", "POS", "REF", "ALT", "imputation quality"]]
-    truth_only_df = imputed_df.merge(truth_df, on = ["CHROM", "POS", "REF", "ALT"], indicator = True)
+    truth_only_df = imputed_df.merge(truth_df, on = ["CHROM", "POS", "REF", "ALT"], how = "outer", indicator = True)
     truth_only_df = truth_only_df[truth_only_df["_merge"] == "right_only"]
     truth_only_df = truth_only_df[["CHROM", "POS", "REF", "ALT"]]
     truth_only_df["imputation quality"] = pd.Series(['missing' for i in range(len(truth_only_df))])
