@@ -41,11 +41,15 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name):
         imp_variants = read_variant(imputed_gt_filename, sample_name, True, chrom, None, None)
         truth_variants = read_variant(truth_gt_filename, sample_name, False, chrom, None, None)
         imp_variants_buffer = []
+        truth_previous_pos = -1 # to prevent repetative variants
+        with open(())
         for truth_pos, truth_ref, truth_alt, truth_gt in truth_variants:
             for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
-                imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))
                 if imp_pos > truth_pos:
                     break
+                if truth_previous_pos < imp_pos:
+                    imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))
+                
             imputed_truth = False 
             while imp_variants_buffer:
                 imp_pos, imp_ref, imp_alt, imp_gt = imp_variants_buffer[0]
@@ -57,6 +61,7 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name):
                     if imp_ref == truth_ref and imp_alt == truth_alt:
                         print(chrom, imp_pos, imp_ref, imp_alt, imp_gt, truth_pos, truth_ref, truth_alt, truth_gt) # imputed and in truth
                         imputed_truth = True
+                        truth_previous_pos = truth_pos
                         break
                     else:
                         print(chrom, imp_pos, imp_ref, imp_alt, imp_gt) # only imputed
