@@ -33,7 +33,7 @@ def read_variant(filename, sample_name, imputed_flag, chrom, start, stop):
             yield (record.pos, record.ref, record.alts[0], gt)
 
 
-def compare(imputed_gt_filename, truth_gt_filename, sample_name):
+def compare(imputed_gt_filename, truth_gt_filename, sample_name, out_name):
     with pysam.VariantFile(imputed_gt_filename) as ivcf:
         chroms = list(ivcf.header.contigs)
 
@@ -42,36 +42,44 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name):
         truth_variants = read_variant(truth_gt_filename, sample_name, False, chrom, None, None)
         imp_variants_buffer = []
         truth_previous_pos = -1 # to prevent repetative variants
-        with open(())
-        for truth_pos, truth_ref, truth_alt, truth_gt in truth_variants:
-            for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
-                if imp_pos > truth_pos:
-                    break
-                if truth_previous_pos < imp_pos:
-                    imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))
-                
-            imputed_truth = False 
-            while imp_variants_buffer:
-                imp_pos, imp_ref, imp_alt, imp_gt = imp_variants_buffer[0]
-                if imp_pos < truth_pos:
-                    imp_variants_buffer.pop(0)
-                    print(chrom, imp_pos, imp_ref, imp_alt, imp_gt) # only imputed
-                elif imp_pos == truth_pos:
-                    imp_variants_buffer.pop(0)
-                    if imp_ref == truth_ref and imp_alt == truth_alt:
-                        print(chrom, imp_pos, imp_ref, imp_alt, imp_gt, truth_pos, truth_ref, truth_alt, truth_gt) # imputed and in truth
-                        imputed_truth = True
-                        truth_previous_pos = truth_pos
+        path_out = out_name + "_" + chrom + ".txt"
+        with open(path_out, 'w') as fw:
+            for truth_pos, truth_ref, truth_alt, truth_gt in truth_variants:
+                for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
+                    if imp_pos > truth_pos:
                         break
+                    if truth_previous_pos < imp_pos:
+                        imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))
+                    
+                imputed_truth = False 
+                while imp_variants_buffer:
+                    imp_pos, imp_ref, imp_alt, imp_gt = imp_variants_buffer[0]
+                    if imp_pos < truth_pos:
+                        imp_variants_buffer.pop(0)
+                        fw.write(f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\t{"only imputed"}") # only imputed
+                    elif imp_pos == truth_pos:
+                        imp_variants_buffer.pop(0)
+                        if imp_ref == truth_ref and imp_alt == truth_alt:
+                            if(imp_gt.count(1) == truth_gt.count(1)):
+                                fw.write(f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\t{"concordant"}") # imputed and in truth
+                                imputed_truth = True
+                                truth_previous_pos = truth_pos
+                                break
+                            else:
+                                fw.write(f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\t{"disconcordant"}") # imputed and in truth
+                                imputed_truth = True
+                                truth_previous_pos = truth_pos
+                                break
+                        else:
+                            fw.write(f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\t{"only imputed"}") # only imputed
+
                     else:
-                        print(chrom, imp_pos, imp_ref, imp_alt, imp_gt) # only imputed
-                else:
-                    break
-            if not imputed_truth:
-                print( chrom, truth_pos, truth_ref, truth_alt, truth_gt) # only in truth
-        
-        for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants_buffer:
-            print( chrom, imp_pos, imp_ref, imp_alt, imp_gt) # only imputed
+                        break
+                if not imputed_truth:
+                        fw.write(f"{chrom}\t{truth_pos}\t{truth_ref}\t{truth_alt}\t{None}\t{truth_gt}\t{"only truth"}") # only truth
+            
+            for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants_buffer:
+                    fw.write(f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\t{"only imputed"}") # only imputed
 
 
 if __name__ == "__main__":
@@ -79,6 +87,7 @@ if __name__ == "__main__":
     sample_name = args.in_sample_name   
     path_imputed = args.in_imp_vcf
     path_truth = args.in_truth_vcf
+    out_name = args.out_file_name
 
-    compare(args.in_imp_vcf, args.in_truth_vcf, sample_name)
+    compare(path_imputed, path_truth, sample_name, out_name)
  
