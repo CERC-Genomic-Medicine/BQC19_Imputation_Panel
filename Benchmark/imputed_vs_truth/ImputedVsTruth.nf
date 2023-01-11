@@ -68,11 +68,10 @@ process imputed_vs_truth {
    output:
    path("*.txt")
 
-   publishDir "result/concordance/", pattern: "*_concordance.txt", mode: "copy"
-   publishDir "result/imputation_qualities/", pattern: "*_imputation_qualities.txt", mode: "copy"
+   publishDir "result/${params.ref_name}/", pattern: "*_post_imputation_analysis.gz", mode: "copy"
 
     """
-    imputed_vs_truth.py -iv ${imputed_vcf} -tv ${truth_vcf} -s ${individual} -r ${params.ref_name} -c ${chromosome}
+    imputed_vs_truth2.py -iv ${imputed_vcf} -tv ${truth_vcf} -s ${individual} -o "${params.ref_name}_${individual}_${chromosome}_post_imputation_analysis.gz"
     """
 }
 

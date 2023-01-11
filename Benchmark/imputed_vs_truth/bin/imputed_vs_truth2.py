@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import pysam
-import gzip
 import argparse
 
 argparser = argparse.ArgumentParser(description = 'This script compares imputed genotypes against true genotypes.')
@@ -33,7 +32,7 @@ def read_variant(filename, sample_name, imputed_flag, chrom, start, stop):
             yield (record.pos, record.ref, record.alts[0], gt)
 
 
-def compare(imputed_gt_filename, truth_gt_filename, sample_name, out_name):
+def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
     with pysam.VariantFile(imputed_gt_filename) as ivcf:
         chroms = list(ivcf.header.contigs)
 
@@ -41,17 +40,14 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, out_name):
         imp_variants = read_variant(imputed_gt_filename, sample_name, True, chrom, None, None)
         truth_variants = read_variant(truth_gt_filename, sample_name, False, chrom, None, None)
         imp_variants_buffer = []
-        truth_previous_pos = -1 # to prevent repetative variants
-        path_out = out_name + "_" + chrom + ".txt"
-        with open(path_out, 'w') as fw:
+        with pysam.BGZFile(path_out, 'w')  as fw:
             for truth_pos, truth_ref, truth_alt, truth_gt in truth_variants:
                 for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
+                    imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))
                     if imp_pos > truth_pos:
                         break
-                    if truth_previous_pos < imp_pos:
-                        imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))
-                    
-                imputed_truth = False 
+                if (not imp_variants_buffer):
+                    fw.write(f"{chrom}\t{truth_pos}\t{truth_ref}\t{truth_alt}\t{None}\t{truth_gt}\t{"only truth"}") # only truth
                 while imp_variants_buffer:
                     imp_pos, imp_ref, imp_alt, imp_gt = imp_variants_buffer[0]
                     if imp_pos < truth_pos:
@@ -62,22 +58,18 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, out_name):
                         if imp_ref == truth_ref and imp_alt == truth_alt:
                             if(imp_gt.count(1) == truth_gt.count(1)):
                                 fw.write(f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\t{"concordant"}") # imputed and in truth
-                                imputed_truth = True
-                                truth_previous_pos = truth_pos
                                 break
                             else:
                                 fw.write(f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\t{"disconcordant"}") # imputed and in truth
-                                imputed_truth = True
-                                truth_previous_pos = truth_pos
                                 break
                         else:
                             fw.write(f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\t{"only imputed"}") # only imputed
+                            fw.write(f"{chrom}\t{truth_pos}\t{truth_ref}\t{truth_alt}\t{None}\t{truth_gt}\t{"only truth"}") # only truth
 
                     else:
-                        break
-                if not imputed_truth:
-                        fw.write(f"{chrom}\t{truth_pos}\t{truth_ref}\t{truth_alt}\t{None}\t{truth_gt}\t{"only truth"}") # only truth
-            
+                        break      
+            for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
+                    imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))      
             for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants_buffer:
                     fw.write(f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\t{"only imputed"}") # only imputed
 
@@ -87,7 +79,7 @@ if __name__ == "__main__":
     sample_name = args.in_sample_name   
     path_imputed = args.in_imp_vcf
     path_truth = args.in_truth_vcf
-    out_name = args.out_file_name
+    path_out = args.out_file_name
 
-    compare(path_imputed, path_truth, sample_name, out_name)
+    compare(path_imputed, path_truth, sample_name, path_out)
  
