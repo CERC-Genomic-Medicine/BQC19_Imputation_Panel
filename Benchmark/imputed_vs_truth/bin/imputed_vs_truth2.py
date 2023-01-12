@@ -46,8 +46,7 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
                     imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))
                     if imp_pos > truth_pos:
                         break
-                if (not imp_variants_buffer):
-                    fw.write(f"{chrom}\t{truth_pos}\t{truth_ref}\t{truth_alt}\t{None}\t{truth_gt}\t{"only truth"}") # only truth
+                
                 imputed_truth = False
                 while imp_variants_buffer:
                     imp_pos, imp_ref, imp_alt, imp_gt = imp_variants_buffer[0]
@@ -69,7 +68,7 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
                             fw.write(f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\t{"only imputed"}") # only imputed
                     else:
                         break    
-            if (imputed_truth = False):
+                if (imputed_truth = False):
                     fw.write(f"{chrom}\t{truth_pos}\t{truth_ref}\t{truth_alt}\t{None}\t{truth_gt}\t{"only truth"}") # only truth
 
             for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
