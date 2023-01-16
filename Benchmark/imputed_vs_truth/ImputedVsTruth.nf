@@ -5,9 +5,11 @@
 */
 
 process get_imputed_chr_names {
-   executor "local"
    cache "lenient"
    cpus 1
+   memory "4GB"
+   time "1h"
+   scratch true
 
    input:
    tuple path(vcf), path(vcf_index)
@@ -21,9 +23,11 @@ process get_imputed_chr_names {
 } 
 
 process get_truth_chr_names {
-   executor "local"
    cache "lenient"
    cpus 1
+   memory "4GB"
+   time "1h"
+   scratch true
 
    input:
    tuple path(vcf), path(vcf_index)
@@ -37,9 +41,11 @@ process get_truth_chr_names {
 }
 
 process get_imputed_sample_names {
-   executor "local"
    cache "lenient"
    cpus 1
+   memory "4GB"
+   time "1h"
+   scratch true
 
    input:
    tuple path(vcf), path(vcf_index)
@@ -57,9 +63,9 @@ process imputed_vs_truth {
    //maxRetries 3
    cache "lenient"
    cpus 1
-   memory "16GB"
+   memory "4GB"
    time "1h"
-   //scratch true
+   scratch true
 
    input:
    tuple val(chromosome), path(imputed_vcf), path(imputed_vcf_index), path(truth_vcf), path(truth_vcf_index)
@@ -86,7 +92,7 @@ workflow {
     all_by_chr = imputed_by_chr.join(truth_by_chr)
     imputed_sample_names = get_imputed_sample_names(Channel.fromPath(params.imputed_files).first().map{ vcf -> [vcf, vcf + ".tbi"] }).flatMap{ it -> it.split("\t") }
 
-    all_by_chr.view()
+    //all_by_chr.view()
     
-    //imputed_vs_truth(imputed_truth_chromosome_files, samples)
+    imputed_vs_truth(all_by_chr, imputed_sample_names)
 }
