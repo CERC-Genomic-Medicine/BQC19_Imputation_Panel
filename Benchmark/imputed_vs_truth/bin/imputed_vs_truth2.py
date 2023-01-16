@@ -68,7 +68,7 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
                             fw.write(f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tonly imputed") # only imputed
                     else:
                         break    
-                if (imputed_truth = False):
+                if (imputed_truth == False):
                     fw.write(f"{chrom}\t{truth_pos}\t{truth_ref}\t{truth_alt}\t{None}\t{truth_gt}\tonly truth") # only truth
 
             for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
