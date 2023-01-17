@@ -90,7 +90,6 @@ workflow {
     truth_by_chr = get_truth_chr_names(truth_files).map{ it -> [it[0].startsWith("chr") ? it[0].substring(3).trim() : it[0].trim(), it[1], it[2]] }
 
     all_by_chr = imputed_by_chr.join(truth_by_chr)
-    //still need to work on this part. one of the samples will have the end of line char
     imputed_sample_names = get_imputed_sample_names(Channel.fromPath(params.imputed_files).first().map{ vcf -> [vcf, vcf + ".tbi"] }).flatMap{ it -> it.split("\n")}.flatMap{ it -> it.split("\t")}
 
     //all_by_chr.view()
