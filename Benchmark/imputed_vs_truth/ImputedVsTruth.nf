@@ -72,15 +72,33 @@ process imputed_vs_truth {
    each individual
 
    output:
-   path("*.txt.gz")
+   tuple val(individual), path("*${individual}*.txt.gz")
 
-   publishDir "result/${params.ref_name}/", pattern: "*.txt.gz", mode: "copy"
+   publishDir "result/${params.ref_name}/${individual}", pattern: "*.txt.gz", mode: "copy"
 
     """
     imputed_vs_truth2.py -iv ${imputed_vcf} -tv ${truth_vcf} -s ${individual} -o "${params.ref_name}_${individual}_${chromosome}_post_imputation_analysis.txt.gz"
     """
 }
 
+process concat_by_sample {
+   cache "lenient"
+   cpus 1
+   memory "4GB"
+   time "1h"
+   scratch true
+
+   input:
+   tuple val(individual), path(quality_files).collect()
+
+   output:
+   path("*.txt.gz")
+
+   publishDir "result/${params.ref_name}/concat_by_sample/", pattern: "*.txt.gz", mode: "copy"
+   """
+    cat ${quality_files} > ${params.ref_name}_${individual}_concat_all_chromosomes.txt.gz 
+   """
+}
 
 workflow {
     imputed_files = Channel.fromPath(params.imputed_files).map{ vcf -> [ vcf, vcf + ".tbi" ] }
@@ -91,8 +109,10 @@ workflow {
 
     all_by_chr = imputed_by_chr.join(truth_by_chr)
     imputed_sample_names = get_imputed_sample_names(Channel.fromPath(params.imputed_files).first().map{ vcf -> [vcf, vcf + ".tbi"] }).flatMap{ it -> it.split("\n")}.flatMap{ it -> it.split("\t")}
-
-    //all_by_chr.view()
     
-    imputed_vs_truth(all_by_chr, imputed_sample_names)
+    quality_files = imputed_vs_truth(all_by_chr, imputed_sample_names)
+    quality_files_per_sample = quality_files.groupTuple(by: 0)
+   
+    concat_by_sample(quality_files_per_sample)
+
 }

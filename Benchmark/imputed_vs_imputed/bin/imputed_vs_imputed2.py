@@ -21,7 +21,8 @@ def read_variant(filename):
         yield (fr.readline().rstrip().split())
 
 
-def compare(first_reference_qt_filename, second_reference_qt_filename, path_out):
+def compare(first_reference_qt_filename, second_reference_qt_filename, path_out_bfbs, path_out_bfws, path_out_wfms, path_out_mfws,\
+ path_out_bfms, path_out_mfbs, path_out_mfms, path_out_wfws, path_out_of, path_out_os):
         first_variants = read_variant(first_reference_qt_filename)
         second_variants = read_variant(second_reference_qt_filename)
         second_variants_buffer = []
@@ -36,7 +37,8 @@ def compare(first_reference_qt_filename, second_reference_qt_filename, path_out)
         first_concordant_second_concordant = 0
         first_concordant_second_discordant = 0
         first_discordant_second_discordant = 0
-        with pysam.BGZFile(path_out, 'w')  as fw:
+        with pysam.BGZFile(path_out_bfbs, 'w')  as bfbsfw, pysam.BGZFile(path_out_bfws, 'w')  as bfwsfw, pysam.BGZFile(path_out_wfms, 'w')  as wfmsfw, pysam.BGZFile(path_out_wfms, 'w')  as wfmsfw, pysam.BGZFile(path_out_mfws, 'w')  as mfwsfw,\
+        pysam.BGZFile(path_out_bfms, 'w')  as bfmsfw, pysam.BGZFile(path_out_mfbs, 'w')  as mfbsfw, pysam.BGZFile(path_out_mfms, 'w')  as mfmsfw, pysam.BGZFile(path_out_wfws, 'w')  as wfwsfw,  pysam.BGZFile(path_out_of, 'w')  as offw, pysam.BGZFile(path_out_os, 'w')  as osfw:
             for f_chrom, f_pos, f_ref, f_alt, f_imp_gt, f_truth_gt, f_qt in first_variants:
                 for s_chrom, s_pos, s_ref, s_alt, s_imp_gt, s_truth_gt, s_qt in second_variants:
                     second_variants_buffer.append((s_chrom, s_pos, s_ref, s_alt, s_imp_gt, s_truth_gt, s_qt))
@@ -51,6 +53,7 @@ def compare(first_reference_qt_filename, second_reference_qt_filename, path_out)
                     if s_pos < f_pos:
                         second_variants_buffer.pop(0)
                         only_present_in_second_ref += 1
+
                     elif s_pos == f_pos:
                         second_variants_buffer.pop(0)
                         if f_ref == s_ref and f_alt == s_alt:
