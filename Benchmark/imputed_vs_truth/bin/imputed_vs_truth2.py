@@ -9,7 +9,13 @@ argparser.add_argument('-iv', '--imputed_vcf', metavar = 'file', dest = 'in_imp_
 argparser.add_argument('-tv', '--truth_vcf', metavar = 'file', dest = 'in_truth_vcf', type = str, required = True, help = 'VCF file containing truth data.')
 argparser.add_argument('-s', '--sample_name', metavar = 'name', dest = 'in_sample_name', type = str, required = True, help = 'Name of the sample that analysis performed on.')
 argparser.add_argument('-o', '--output_file', metavar = 'file', dest = 'out_file_name', type = str, required = True, help = 'Output file name. Output file will be compressed using gzip.')
-
+"""
+Variant type encoding:
+o refers to variants that are present in "only" reference panel but truth files.
+m refers to variants that are "missing" in the reference panel but they are present in the "truth" vcf files.
+c refers to varants that are present in both reference panel and truth vcf files, and the truth and imputed genotypes are equal.
+d refers to variants that are present in both reference panel and truth vcf files, however the truth and imputed genotypes are not equal.
+"""
 
 
 def read_variant(filename, sample_name, imputed_flag, chrom, start, stop):
@@ -52,29 +58,29 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
                     imp_pos, imp_ref, imp_alt, imp_gt = imp_variants_buffer[0]
                     if imp_pos < truth_pos:
                         imp_variants_buffer.pop(0)
-                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tonly imputed\n").encode()) # only imputed
+                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\to\n").encode()) # only imputed
                     elif imp_pos == truth_pos:
                         imp_variants_buffer.pop(0)
                         if imp_ref == truth_ref and imp_alt == truth_alt:
                             if(imp_gt.count(1) == truth_gt.count(1)):
                                 imputed_truth = True
-                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tconcordant\n").encode()) # imputed and in truth
+                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tc\n").encode()) # imputed and in truth
                                 break
                             else:
                                 imputed_truth = True
-                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tdisconcordant\n").encode()) # imputed and in truth
+                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\td\n").encode()) # imputed and in truth
                                 break
                         else:
-                            fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tonly imputed\n").encode()) # only imputed
+                            fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\to\n").encode()) # only imputed
                     else:
                         break    
                 if (imputed_truth == False):
-                    fw.write((f"{chrom}\t{truth_pos}\t{truth_ref}\t{truth_alt}\t{None}\t{truth_gt}\tonly truth\n").encode()) # only truth
+                    fw.write((f"{chrom}\t{truth_pos}\t{truth_ref}\t{truth_alt}\t{None}\t{truth_gt}\tm\n").encode()) # only truth
 
             for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
                     imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))      
             for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants_buffer:
-                    fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tonly imputed\n").encode()) # only imputed
+                    fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\to\n").encode()) # only imputed
 
 
 if __name__ == "__main__":

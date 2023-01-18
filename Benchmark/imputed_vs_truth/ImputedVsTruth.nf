@@ -170,7 +170,6 @@ workflow {
     
     quality_files = imputed_vs_truth(all_by_chr, imputed_sample_names)
     quality_files_per_sample = quality_files.groupTuple(by: 0)
-    //quality_files_per_sample.view()
     individual, sample_files = concat_by_sample(quality_files_per_sample)
     sample, summary_file = generate_summary(individual, sample_files) 
     aggregate_all_samples(sample, summary_file)
