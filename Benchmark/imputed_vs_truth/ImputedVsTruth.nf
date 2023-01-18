@@ -92,7 +92,7 @@ process concat_by_sample {
    tuple val(individual), path(quality_files)
 
    output:
-   path("*.txt.gz")
+   tuple val(individual), path("*.txt.gz")
 
    publishDir "result/${params.ref_name}/concat_by_sample/", pattern: "*.txt.gz", mode: "copy"
    """
@@ -146,10 +146,10 @@ process aggregate_all_samples {
    scratch true
 
    input:
-   tuple path(concatenated_summary_file)
+   path(concatenated_summary_file)
 
    output:
-   tuple path("*.txt")
+   path("*.txt")
 
    publishDir "result/${params.ref_name}/analysis/", pattern: "*.txt", mode: "copy"
 
@@ -171,6 +171,8 @@ workflow {
     quality_files = imputed_vs_truth(all_by_chr, imputed_sample_names)
     quality_files_per_sample = quality_files.groupTuple(by: 0)
     //quality_files_per_sample.view()
-    concat_by_sample(quality_files_per_sample)
+    individual, sample_files = concat_by_sample(quality_files_per_sample)
+    sample, summary_file = generate_summary(individual, sample_files) 
+    aggregate_all_samples(sample, summary_file)
 
 }
