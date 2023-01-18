@@ -100,6 +100,65 @@ process concat_by_sample {
    """
 }
 
+process generate_summary {
+   cache "lenient"
+   cpus 1
+   memory "4GB"
+   time "1h"
+   scratch true
+
+   input:
+   tuple val(individual), path(quality_file_per_sample)
+
+   output:
+   tuple val(individual), path("*.txt")
+
+   publishDir "result/${params.ref_name}/summary/", pattern: "*.txt", mode: "copy"
+   """
+   generate_summary.py -i ${quality_file_per_sample} -o ${individual}.summary.txt
+   """
+}
+
+process concat_all_samples_summary {
+   cache "lenient"
+   cpus 1
+   memory "4GB"
+   time "1h"
+   scratch true
+
+   input:
+   tuple val(individual), path(summary_per_sample)
+
+   output:
+   path("*.txt")
+
+   """
+   sed '1d' ${individual}.summary.txt > ${individual}.summary_woh.txt
+   cat *.summary_woh.txt > ${params.ref_name}_concat_all_summary_woh.txt
+   """
+}
+
+process aggregate_all_samples {
+   cache "lenient"
+   cpus 1
+   memory "4GB"
+   time "1h"
+   scratch true
+
+   input:
+   tuple path(concatenated_summary_file)
+
+   output:
+   tuple path("*.txt", "*.jpg")
+
+   publishDir "result/${params.ref_name}/analysis/", pattern: "*.txt", mode: "copy"
+   publishDir "result/${params.ref_name}/analysis/", pattern: "*.jpg", mode: "copy"
+
+   """
+   aggregate_all.py -i ${concatenated_summary_file} -r ${params.ref_name} 
+   """
+}
+
 workflow {
     imputed_files = Channel.fromPath(params.imputed_files).map{ vcf -> [ vcf, vcf + ".tbi" ] }
     truth_files = Channel.fromPath(params.truth_files).map{ vcf -> [ vcf, vcf + ".tbi" ] }
