@@ -172,6 +172,7 @@ workflow {
     quality_files_per_sample = quality_files.groupTuple(by: 0)
     individual, sample_files = concat_by_sample(quality_files_per_sample)
     sample, summary_file = generate_summary(individual, sample_files) 
-    aggregate_all_samples(sample, summary_file)
+    all_files = concat_all_samples_summary(sample, summary_file)
+    aggregate_all_samples(all_files)
 
 }
