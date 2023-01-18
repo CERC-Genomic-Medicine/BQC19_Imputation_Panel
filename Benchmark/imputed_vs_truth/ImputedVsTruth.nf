@@ -115,7 +115,7 @@ process generate_summary {
 
    publishDir "result/${params.ref_name}/summary/", pattern: "*.txt", mode: "copy"
    """
-   generate_summary.py -i ${quality_file_per_sample} -o ${individual}.summary.txt
+   generate_summary.py -i ${quality_file_per_sample} -s ${individual} -o ${individual}.summary.txt
    """
 }
 
@@ -149,13 +149,12 @@ process aggregate_all_samples {
    tuple path(concatenated_summary_file)
 
    output:
-   tuple path("*.txt", "*.jpg")
+   tuple path("*.txt")
 
    publishDir "result/${params.ref_name}/analysis/", pattern: "*.txt", mode: "copy"
-   publishDir "result/${params.ref_name}/analysis/", pattern: "*.jpg", mode: "copy"
 
    """
-   aggregate_all.py -i ${concatenated_summary_file} -r ${params.ref_name} 
+   aggregate_all.py -i ${concatenated_summary_file} -o ${params.ref_name}_concordance.txt
    """
 }
 
