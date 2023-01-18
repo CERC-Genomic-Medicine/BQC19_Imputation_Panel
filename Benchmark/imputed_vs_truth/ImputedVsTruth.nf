@@ -89,7 +89,7 @@ process concat_by_sample {
    scratch true
 
    input:
-   tuple val(individual), path(quality_files).collect()
+   tuple val(individual), path(quality_files)
 
    output:
    path("*.txt.gz")
@@ -112,7 +112,7 @@ workflow {
     
     quality_files = imputed_vs_truth(all_by_chr, imputed_sample_names)
     quality_files_per_sample = quality_files.groupTuple(by: 0)
-   
+    //quality_files_per_sample.view()
     concat_by_sample(quality_files_per_sample)
 
 }
