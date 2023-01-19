@@ -12,7 +12,8 @@ argparser.add_argument('-s', '--sample_ID', metavar = 'name', dest = 'in_sample_
 argparser.add_argument('-o', '--output_file', metavar = 'file', dest = 'out_file_name', type = str, required = True, help = 'Output file which contains summary of numbers of different types of variant.')
 
 def calculates_stats(sample_ID, input_file, path_out):
-    input_dataframe = pd.read_csv(input_file, sep="\t", columns = ["CHROM", "POS", "ALT", "REF", "IMP_gt", "TRUTH_gt", "type"])
+    input_dataframe = pd.read_csv(input_file, sep="\t", header = None)
+    input_dataframe.columns = ["CHROM", "POS", "ALT", "REF", "IMP_gt", "TRUTH_gt", "type"]
     counts = input_dataframe.type.value_counts()
     result_dict = {'Sample ID':[sample_ID], 'Number of True Imputed':[counts['TI']], 'Number of False Imputed': [counts['FI']], 'Number of Only Imputed': [counts['OI']], 'Number of Not Imputed': [counts['NI']]}
     result_dataframe = pd.DataFrame(result_dict)
