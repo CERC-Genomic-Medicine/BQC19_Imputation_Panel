@@ -13,12 +13,8 @@ argparser.add_argument('-o', '--output_file', metavar = 'file', dest = 'out_file
 
 def calculates_stats(sample_ID, input_file, path_out):
     input_dataframe = pd.read_csv(input_file, sep="\t", columns = ["CHROM", "POS", "ALT", "REF", "IMP_gt", "TRUTH_gt", "type"])
-    frequence = input_dataframe.type.value_counts()
-    pct_concordant = frequence['c']/(frequence['c'] + frequence['d'] + frequence['o'])
-    pct_missing = frequence['m']/(frequence['c'] + frequence['d'] + frequence['m'])
-    pct_only_imputed = frequence['o']/(frequence['c'] + frequence['d'] + frequence['o'])
-
-    result_dict = {'SID':[], 'NC':[frequence['c']], 'ND': [frequence['d']], 'NO': [frequence['o']], 'NM': [frequence['m']], 'PC':[pct_concordant], 'PM':[pct_missing], 'PO':[pct_only_imputed]}
+    counts = input_dataframe.type.value_counts()
+    result_dict = {'Sample ID':[sample_ID], 'Number of True Imputed':[counts['TI']], 'Number of False Imputed': [counts['FI']], 'Number of Only Imputed': [counts['OI']], 'Number of Not Imputed': [counts['NI']]}
     result_dataframe = pd.DataFrame(result_dict)
     result_dataframe.to_csv(path_out, sep="\t", index = False)
 

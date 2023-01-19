@@ -64,7 +64,7 @@ process imputed_vs_truth {
     publishDir "result/${params.ref_name}/${individual}", pattern: "*.txt.gz", mode: "copy"
 
      """
-     imputed_vs_truth2.py -iv ${imputed_vcf} -tv ${truth_vcf} -s ${individual} -o "${params.ref_name}_${individual}_${chromosome}_post_imputation_analysis.txt.gz"
+     imputed_vs_truth.py -iv ${imputed_vcf} -tv ${truth_vcf} -s ${individual} -o "${params.ref_name}_${individual}_${chromosome}_post_imputation_analysis.txt.gz"
      """
  }
 
@@ -118,30 +118,12 @@ process concat_all_samples_summary {
 
    output:
    path("*.txt")
+   publishDir "result/${params.ref_name}/summary_concat/", pattern: "*.txt", mode: "copy"
 
    """
    sed '1d' ${individual}.summary.txt > ${individual}.summary_woh.txt
-   cat *.summary_woh.txt > ${params.ref_name}_concat_all_summary_woh.txt
-   """
-}
-
-process aggregate_all_samples {
-   cache "lenient"
-   cpus 1
-   memory "4GB"
-   time "1h"
-   scratch true
-
-   input:
-   path(concatenated_summary_file)
-
-   output:
-   path("*.txt")
-
-   publishDir "result/${params.ref_name}/analysis/", pattern: "*.txt", mode: "copy"
-
-   """
-   aggregate_all.py -i ${concatenated_summary_file} -o ${params.ref_name}_concordance.txt
+   cat *.summary_woh.txt > ${params.ref_name}_concat_all_summary.txt
+   sed -i -e '1iSample ID\tNumber of True Imputed\tNumber of False Imputed\tNumber of Only Imputed\tNumber of Not Imputed\' ${params.ref_name}_concat_all_summary.txt
    """
 }
 
@@ -161,7 +143,6 @@ workflow {
 
    sample_files_per_inds = concat_by_sample(quality_files_per_sample)
    summary_files = generate_summary(sample_files_per_inds) 
-   all_files = concat_all_samples_summary(sample, summary_file)
-   aggregate_all_samples(all_files)
+   concat_all_samples_summary(summary_files)
 
  }

@@ -1,72 +1,86 @@
 #!/usr/bin/env python
 
 import pysam
-import pandas as pd 
-import os
 import argparse
 
-argparser = argparse.ArgumentParser(description = 
- 'This script compares imputed data with truth data and calculate imputation concordance based on these analysis'
- )
+argparser = argparse.ArgumentParser(description = 'This script compares imputed genotypes against true genotypes.')
 
 argparser.add_argument('-iv', '--imputed_vcf', metavar = 'file', dest = 'in_imp_vcf', type = str, required = True, help = 'VCF file containing imputed data.')
 argparser.add_argument('-tv', '--truth_vcf', metavar = 'file', dest = 'in_truth_vcf', type = str, required = True, help = 'VCF file containing truth data.')
-argparser.add_argument('-s', '--sample_name', metavar = 'name', dest = 'in_sample_name', type = str, required = True, help = 'name of the sample that analysis performed on.')
-argparser.add_argument('-r', '--reference_name', metavar = 'name', dest = 'in_reference_name', type = str, required = True, help = 'name of the reference panel is used for imputation.')
-argparser.add_argument('-c', '--chromosome_name', metavar = 'name', dest = 'in_chr', type = str, required = True, help = 'name of the chromosome is used for processing.')
+argparser.add_argument('-s', '--sample_name', metavar = 'name', dest = 'in_sample_name', type = str, required = True, help = 'Name of the sample that analysis performed on.')
+argparser.add_argument('-o', '--output_file', metavar = 'file', dest = 'out_file_name', type = str, required = True, help = 'Output file name. Output file will be compressed using gzip.')
+"""
+Variant type encoding:
+OI refers to variants that are present in "only" reference panel but truth files.
+NI refers to variants that are "missing" in the reference panel but they are present in the "truth" vcf files.
+TI refers to varants that are present in both reference panel and truth vcf files, and the truth and imputed genotypes have same number of alternate alleles.
+FI refers to variants that are present in both reference panel and truth vcf files, however the truth and imputed genotypes have different number of alternate alleles. 
+"""
 
 
-def load_imputed(path, sample_ID, imputed_flag = True):
-        with pysam.VariantFile(path) as vcf:
-            vcf.subset_samples([sample_ID])
-            for record in vcf:
-                if(imputed_flag == True):
-                    if (not record.info["IMPUTED"]):
-                        continue
-                assert len(record.alts) == 1
-                if(len(record.alts) != 1):
-                    continue
-                if(len(record.ref) != 1 or len(record.alts[0]) != 1):
-                    continue
-                chrom = record.chrom if record.chrom.startswith("chr") else "chr" + record.chrom
-                gt = list(value['GT'] for value in record.samples.values())[0]
-                yield {'CHROM':chrom, "POS": record.pos, "REF":record.ref, "ALT":\
-                           record.alts[0], "GT_Imputed":gt}
+def read_variant(filename, sample_name, imputed_flag, chrom, start, stop):
+    with pysam.VariantFile(filename) as ivcf:
+        if any(c.startswith('chr') for c in ivcf.header.contigs): # add or remove 'chr' prefix if needed, depending on VCF header
+            if not chrom.startswith('chr'):
+                chrom = f'chr{chrom}'
+        else:
+            if chrom.startswith('chr'):
+                chrom = chrom[3:]
+        ivcf.subset_samples([sample_name])
+        for record in ivcf.fetch(contig = chrom, start = start, stop = stop):
+            if (imputed_flag == True):
+             if not record.info["IMPUTED"]:
+                continue
+            assert len(record.alts) == 1
+            if (len(record.alts) != 1):
+                continue
+            gt = list(value['GT'] for value in record.samples.values())[0]
+            yield (record.pos, record.ref, record.alts[0], gt)
 
 
-def load_truth(path, sample_ID):
-        with pysam.VariantFile(path) as vcf:
-            vcf.subset_samples([sample_ID])
-            for record in vcf:
-                assert len(record.alts) == 1
-                if(len(record.alts) != 1):
-                    continue
-                if(len(record.ref) != 1 or len(record.alts[0]) != 1):
-                    continue
-                gt = list(value['GT'] for value in record.samples.values())[0]
-                yield {'CHROM':record.chrom, "POS": record.pos, "REF":record.ref, "ALT": \
-                       record.alts[0], "GT_truth":gt}
+def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
+    with pysam.VariantFile(imputed_gt_filename) as ivcf:
+        chroms = list(ivcf.header.contigs)
 
+    for chrom in chroms:
+        imp_variants = read_variant(imputed_gt_filename, sample_name, True, chrom, None, None)
+        truth_variants = read_variant(truth_gt_filename, sample_name, False, chrom, None, None)
+        imp_variants_buffer = []
+        with pysam.BGZFile(path_out, 'w')  as fw:
+            for truth_pos, truth_ref, truth_alt, truth_gt in truth_variants:
+                for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
+                    imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))
+                    if imp_pos > truth_pos:
+                        break
+                
+                imputed_truth = False
+                while imp_variants_buffer:
+                    imp_pos, imp_ref, imp_alt, imp_gt = imp_variants_buffer[0]
+                    if imp_pos < truth_pos:
+                        imp_variants_buffer.pop(0)
+                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tOI\n").encode()) # only imputed
+                    elif imp_pos == truth_pos:
+                        imp_variants_buffer.pop(0)
+                        if imp_ref == truth_ref and imp_alt == truth_alt:
+                            if(imp_gt.count(1) == truth_gt.count(1)):
+                                imputed_truth = True
+                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tTI\n").encode()) # imputed and in truth
+                                break
+                            else:
+                                imputed_truth = True
+                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tFI\n").encode()) # imputed and in truth
+                                break
+                        else:
+                            fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tOI\n").encode()) # only imputed
+                    else:
+                        break    
+                if (imputed_truth == False):
+                    fw.write((f"{chrom}\t{truth_pos}\t{truth_ref}\t{truth_alt}\t{None}\t{truth_gt}\tNI\n").encode()) # only truth
 
-def ImputedVsTruth(path_truth, path_imputed, sample_ID, imputed_flag = True):
-    imputed_df = pd.DataFrame(load_imputed(path_imputed, sample_ID, imputed_flag))
-    truth_df = pd.DataFrame(load_truth(path_truth, sample_ID))
-    merge_df = imputed_df.merge(truth_df, on = ["CHROM", "POS", "REF", "ALT"])
-    merge_df["# alt allele truth"] = pd.Series(x.count(1) for x in merge_df["GT_truth"])
-    merge_df["# alt allele imputed"] = pd.Series(x.count(1) for x in merge_df["GT_Imputed"])
-    correct_count = list(merge_df["# alt allele truth"] == merge_df["# alt allele imputed"]).count(True)
-    concordance = (correct_count/len(merge_df))*100
-    merge_df["imputation quality"] = pd.Series(merge_df["# alt allele truth"] == merge_df["# alt allele imputed"])
-    merge_df = merge_df[["CHROM", "POS", "REF", "ALT", "imputation quality"]]
-    truth_only_df = imputed_df.merge(truth_df, on = ["CHROM", "POS", "REF", "ALT"], how = "outer", indicator = True)
-    truth_only_df = truth_only_df[truth_only_df["_merge"] == "right_only"]
-    truth_only_df = truth_only_df[["CHROM", "POS", "REF", "ALT"]]
-    truth_only_df["imputation quality"] = pd.Series(['missing' for i in range(len(truth_only_df))])
-    final_df = pd.concat([merge_df, truth_only_df])
-    final_df = final_df.sort_values(by=["POS"])
-    missing = (len(truth_only_df)/len(truth_df))*100
-    return missing, concordance, final_df
-
+            for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
+                    imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))      
+            for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants_buffer:
+                    fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tOI\n").encode()) # only imputed
 
 
 if __name__ == "__main__":
@@ -74,10 +88,7 @@ if __name__ == "__main__":
     sample_name = args.in_sample_name   
     path_imputed = args.in_imp_vcf
     path_truth = args.in_truth_vcf
-    chrom_name = args.in_chr
-    ref_name = args.in_reference_name
-    missing, concordance, merge_df = ImputedVsTruth(path_truth, path_imputed, sample_name)
-    result = {"Sample name" : [sample_name], "reference name" : [ref_name],  "chromosome" : [chrom_name], "concordance" : [concordance], "missing" : [missing]}
-    df_res = pd.DataFrame(result) 
-    df_res.to_csv(sample_name + "_" + chrom_name + "_" + ref_name + "_concordance.txt", sep = "\t", index = None)
-    merge_df.to_csv(sample_name + "_" + chrom_name + "_" + ref_name + "_imputation_qualities.txt", sep = "\t", index = None)
+    path_out = args.out_file_name
+
+    compare(path_imputed, path_truth, sample_name, path_out)
+ 
