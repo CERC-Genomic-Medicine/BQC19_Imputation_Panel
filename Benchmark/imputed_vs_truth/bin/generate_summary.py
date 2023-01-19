@@ -22,5 +22,5 @@ if __name__ == "__main__":
     args = argparser.parse_args()
     input_file = args.in_file_name  
     path_out = args.out_file_name
-    sample_ID = args.sample_ID
+    sample_ID = args.in_sample_ID
     calculates_stats(sample_ID, input_file, path_out)
