@@ -15,7 +15,24 @@ def calculates_stats(sample_ID, input_file, path_out):
     input_dataframe = pd.read_csv(input_file, sep="\t", header = None)
     input_dataframe.columns = ["CHROM", "POS", "ALT", "REF", "IMP_gt", "TRUTH_gt", "type"]
     counts = input_dataframe.type.value_counts()
-    result_dict = {'Sample ID':[sample_ID], 'Number of True Imputed':[counts['TI']], 'Number of False Imputed': [counts['FI']], 'Number of Only Imputed': [counts['OI']], 'Number of Not Imputed': [counts['NI']]}
+    list_index = list(counts.index)
+    if ('TI' in list_index):
+        TI = counts['TI']
+    else:
+        TI = 0
+    if ('FI' in list_index):
+        FI = counts['FI']
+    else:
+        FI = 0
+    if ('OI' in list_index):
+        OI = counts['OI']
+    else:
+        OI = 0
+    if ('NI' in list_index):
+        NI = counts['NI']
+    else:
+        NI = 0
+    result_dict = {'Sample ID':[sample_ID], 'Number of True Imputed':[TI], 'Number of False Imputed': [FI], 'Number of Only Imputed': [OI], 'Number of Not Imputed': [NI]}
     result_dataframe = pd.DataFrame(result_dict)
     result_dataframe.to_csv(path_out, sep="\t", index = False)
 
