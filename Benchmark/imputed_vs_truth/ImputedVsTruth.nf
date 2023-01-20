@@ -98,7 +98,7 @@ process generate_summary {
    tuple val(individual), path(quality_file_per_sample)
 
    output:
-   tuple val(individual), path("*.txt")
+   tuple path("*.txt")
 
    publishDir "result/${params.ref_name}/summary/", pattern: "*.txt", mode: "copy"
    """
@@ -114,15 +114,14 @@ process concat_all_samples_summary {
    scratch true
 
    input:
-   tuple val(individual), path(summary_per_sample)
+   path(summary_per_sample)
 
    output:
    path("*.txt")
    publishDir "result/${params.ref_name}/summary_concat/", pattern: "*.txt", mode: "copy"
 
    """
-   sed '1d' ${individual}.summary.txt > ${individual}.summary_woh.txt
-   cat *.summary_woh.txt > ${params.ref_name}_concat_all_summary.txt
+   awk 'FNR>1' ${summary_per_sample} > ${params.ref_name}_concat_all_summary.txt
    sed -i -e '1iSample ID\tNumber of True Imputed\tNumber of False Imputed\tNumber of Only Imputed\tNumber of Not Imputed\' ${params.ref_name}_concat_all_summary.txt
    """
 }
@@ -143,6 +142,6 @@ workflow {
 
    sample_files_per_inds = concat_by_sample(quality_files_per_sample)
    summary_files = generate_summary(sample_files_per_inds) 
-   concat_all_samples_summary(summary_files)
+   concat_all_samples_summary(summary_files.collect())
 
  }
