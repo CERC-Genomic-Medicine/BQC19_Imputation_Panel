@@ -15,6 +15,8 @@ OI refers to variants that are present in "only" reference panel but truth files
 NI refers to variants that are "missing" in the reference panel but they are present in the "truth" vcf files.
 TI refers to varants that are present in both reference panel and truth vcf files, and the truth and imputed genotypes have same number of alternate alleles.
 FI refers to variants that are present in both reference panel and truth vcf files, however the truth and imputed genotypes have different number of alternate alleles. 
+TT refers to variants that are present in genotyping array and the imputed genotypes have same number of alt alleles to truth.
+FT refers to variants that are present in genotyping array and the imputed genotypes have different number of alt alleles to truth.
 """
 
 
