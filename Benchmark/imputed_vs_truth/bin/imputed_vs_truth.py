@@ -28,14 +28,14 @@ def read_variant(filename, sample_name, imputed_flag, chrom, start, stop):
                 chrom = chrom[3:]
         ivcf.subset_samples([sample_name])
         for record in ivcf.fetch(contig = chrom, start = start, stop = stop):
-            if (imputed_flag == True):
-             if not record.info["IMPUTED"]:
-                continue
+            #if (imputed_flag == True):
+             #if not record.info["IMPUTED"]:
+             #   continue
             assert len(record.alts) == 1
             if (len(record.alts) != 1):
                 continue
             gt = list(value['GT'] for value in record.samples.values())[0]
-            yield (record.pos, record.ref, record.alts[0], gt)
+            yield (record.pos, record.ref, record.alts[0], gt, record.info["IMPUTED"])
 
 
 def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
@@ -48,14 +48,14 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
         imp_variants_buffer = []
         with pysam.BGZFile(path_out, 'w')  as fw:
             for truth_pos, truth_ref, truth_alt, truth_gt in truth_variants:
-                for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
-                    imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))
+                for imp_pos, imp_ref, imp_alt, imp_gt, imp_flag in imp_variants:
+                    imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt, imp_flag))
                     if imp_pos > truth_pos:
                         break
                 
                 imputed_truth = False
                 while imp_variants_buffer:
-                    imp_pos, imp_ref, imp_alt, imp_gt = imp_variants_buffer[0]
+                    imp_pos, imp_ref, imp_alt, imp_gt, imp_flag = imp_variants_buffer[0]
                     if imp_pos < truth_pos:
                         imp_variants_buffer.pop(0)
                         fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tOI\n").encode()) # only imputed
@@ -63,13 +63,23 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
                         imp_variants_buffer.pop(0)
                         if imp_ref == truth_ref and imp_alt == truth_alt:
                             if(imp_gt.count(1) == truth_gt.count(1)):
-                                imputed_truth = True
-                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tTI\n").encode()) # imputed and in truth
-                                break
+                                if (not imp_flag):
+                                    imputed_truth = True
+                                    fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tTT\n").encode()) # truely genotyped
+                                    break
+                                else:
+                                    imputed_truth = True
+                                    fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tTI\n").encode()) # imputed and in truth
+                                    break
                             else:
-                                imputed_truth = True
-                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tFI\n").encode()) # imputed and in truth
-                                break
+                                if (not imp_flag):
+                                    imputed_truth = True
+                                    fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tFT\n").encode()) # falsely genotyped
+                                    break
+                                else:
+                                    imputed_truth = True
+                                    fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tFI\n").encode()) # imputed and in truth
+                                    break
                         else:
                             fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tOI\n").encode()) # only imputed
                     else:
