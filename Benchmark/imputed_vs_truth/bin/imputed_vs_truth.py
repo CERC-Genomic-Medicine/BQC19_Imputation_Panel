@@ -31,7 +31,6 @@ def read_variant(filename, sample_name, imputed_flag, chrom, start, stop):
             #if (imputed_flag == True):
              #if not record.info["IMPUTED"]:
              #   continue
-                if not record.info["IMPUTED"]
             assert len(record.alts) == 1
             if (len(record.alts) != 1):
                 continue
