@@ -17,12 +17,12 @@ def calculates_stats(sample_ID, input_file, path_out):
     counts = input_dataframe.type.value_counts()
     list_index = list(counts.index)
     
-    (TI = counts['TI']) if ('TI' in list_index) else (TI = 0)
-    (FI = counts['FI']) if ('FI' in list_index) else (FI = 0)
-    (OI = counts['OI']) if ('OI' in list_index) else (OI = 0)
-    (NI = counts['NI']) if ('NI' in list_index) else (NI = 0)
-    (TI = counts['TT']) if ('TT' in list_index) else (TT = 0)
-    (TI = counts['FT']) if ('FT' in list_index) else (FT = 0)
+    TI = counts['TI'] if ('TI' in list_index) else  0
+    FI = counts['FI'] if ('FI' in list_index) else  0
+    OI = counts['OI'] if ('OI' in list_index) else  0
+    NI = counts['NI'] if ('NI' in list_index) else  0
+    TT = counts['TT'] if ('TT' in list_index) else  0
+    FT = counts['FT'] if ('FT' in list_index) else  0
     
     result_dict = {'Sample ID':[sample_ID], 'Number of True Imputed':[TI], 'Number of False Imputed': [FI], 'Number of Only Imputed': [OI], 'Number of Not Imputed': [NI], 'Number of Truely Typed':[TT], 'Number of Falsely Typed':[FT]}
     result_dataframe = pd.DataFrame(result_dict)
