@@ -122,7 +122,7 @@ process concat_all_samples_summary {
 
    """
    awk 'FNR>1' ${summary_per_sample} > ${params.ref_name}_concat_all_summary.txt
-   sed -i -e '1iSample ID\tNumber of True Imputed\tNumber of False Imputed\tNumber of Only Imputed\tNumber of Not Imputed\' ${params.ref_name}_concat_all_summary.txt
+   sed -i -e '1iSample ID\tNumber of True Imputed\tNumber of False Imputed\tNumber of Only Imputed\tNumber of Not Imputed\t Number of Truely Typed\tNumber of Falsely Typed\n' ${params.ref_name}_concat_all_summary.txt
    """
 }
 
