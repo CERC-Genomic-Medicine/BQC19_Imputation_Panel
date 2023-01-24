@@ -16,23 +16,15 @@ def calculates_stats(sample_ID, input_file, path_out):
     input_dataframe.columns = ["CHROM", "POS", "ALT", "REF", "IMP_gt", "TRUTH_gt", "type"]
     counts = input_dataframe.type.value_counts()
     list_index = list(counts.index)
-    if ('TI' in list_index):
-        TI = counts['TI']
-    else:
-        TI = 0
-    if ('FI' in list_index):
-        FI = counts['FI']
-    else:
-        FI = 0
-    if ('OI' in list_index):
-        OI = counts['OI']
-    else:
-        OI = 0
-    if ('NI' in list_index):
-        NI = counts['NI']
-    else:
-        NI = 0
-    result_dict = {'Sample ID':[sample_ID], 'Number of True Imputed':[TI], 'Number of False Imputed': [FI], 'Number of Only Imputed': [OI], 'Number of Not Imputed': [NI]}
+    
+    (TI = counts['TI']) if ('TI' in list_index) else (TI = 0)
+    (FI = counts['FI']) if ('FI' in list_index) else (FI = 0)
+    (OI = counts['OI']) if ('OI' in list_index) else (OI = 0)
+    (NI = counts['NI']) if ('NI' in list_index) else (NI = 0)
+    (TI = counts['TT']) if ('TT' in list_index) else (TT = 0)
+    (TI = counts['FT']) if ('FT' in list_index) else (FT = 0)
+    
+    result_dict = {'Sample ID':[sample_ID], 'Number of True Imputed':[TI], 'Number of False Imputed': [FI], 'Number of Only Imputed': [OI], 'Number of Not Imputed': [NI], 'Number of Truely Typed':[TT], 'Number of Falsely Typed':[FT]}
     result_dataframe = pd.DataFrame(result_dict)
     result_dataframe.to_csv(path_out, sep="\t", index = False)
 
