@@ -31,12 +31,16 @@ def read_variant(filename, sample_name, imputed_flag, chrom, start, stop):
             #if (imputed_flag == True):
              #if not record.info["IMPUTED"]:
              #   continue
+                if not record.info["IMPUTED"]
             assert len(record.alts) == 1
             if (len(record.alts) != 1):
                 continue
             gt = list(value['GT'] for value in record.samples.values())[0]
-            yield (record.pos, record.ref, record.alts[0], gt, record.info["IMPUTED"])
-
+            
+            if (imputed_flag == True):
+                yield (record.pos, record.ref, record.alts[0], gt, record.info["IMPUTED"])
+            else:
+                yield (record.pos, record.ref, record.alts[0], gt)
 
 def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
     with pysam.VariantFile(imputed_gt_filename) as ivcf:
