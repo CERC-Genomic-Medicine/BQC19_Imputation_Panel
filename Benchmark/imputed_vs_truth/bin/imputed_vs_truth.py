@@ -36,8 +36,8 @@ def read_variant(filename, sample_name, imputed_flag, chrom, start, stop):
             assert len(record.alts) == 1
             if (len(record.alts) != 1):
                 continue
-            gt = sum(list(value['GT'] for value in record.samples.values())[0])
-            
+            gt = (list(value['GT'] for value in record.samples.values())[0]).count(1)
+            print(gt)
             if (imputed_flag == True):
                 yield (record.pos, record.ref, record.alts[0], gt, record.info["IMPUTED"])
             else:

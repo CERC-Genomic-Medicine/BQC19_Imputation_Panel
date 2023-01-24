@@ -16,80 +16,71 @@ argparser.add_argument('-c', '--chromosome_name', metavar = 'name', dest = 'in_c
 argparser.add_argument('-m', '--mode', metavar = 'name', dest = 'mode', type = str, required = True, help = 'mode of analysis:{r : raw files, wc : without centromeres, hc : high coverage regions}')
 
 def count_badly_imputed(df):
-    df = df[df["imputation quality"] != "missing"]
-    df_bad = df[df["imputation quality"] == False]
+    df_bad = df[df["imputation quality"] == 'FI']
     return len(df_bad)
 
 def count_well_imputed(df):
-    df = df[df["imputation quality"] != "missing"]
-    df_well = df[df["imputation quality"] == True]
+    df_well = df[df["imputation quality"] == 'TI']
     return len(df_well)
 
 def count_missing(df):
-    df_missing = df[df["imputation quality"] == "missing"]
+    df_missing = df[df["imputation quality"] == 'NI']
     return len(df_missing)
 
 def count_shared_variants(df_first, df_second):
-    df_first = df_first[df_first["imputation quality"] != "missing"]
-    df_second = df_second[df_second["imputation quality"] != "missing"]
+    df_first = df_first[df_first["imputation quality"] != 'NI']
+    df_second = df_second[df_second["imputation quality"] != 'NI']
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
     return len(df_merge)
 
 def count_badly_imputed_first_present_second(df_first, df_second):
-    df_second = df_second[df_second["imputation quality"] != "missing"]
-    df_first = df_first[df_first["imputation quality"] != "missing"]
-    df_first = df_first[df_first["imputation quality"] == False]
+    df_second = df_second[df_second["imputation quality"] != 'NI']
+    df_first = df_first[df_first["imputation quality"] == 'FI']
+    df_first = df_first.rename(columns={"imputation quality":"first imputation quality"})
+    df_second = df_second.rename(columns={"imputation quality":"second imputation quality"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
     return len(df_merge), df_merge
 
 def count_badly_imputed_in_one_well_imputed_other(df_first, df_second):
-    df_second = df_second[df_second["imputation quality"] != "missing"]
-    df_first = df_first[df_first["imputation quality"] != "missing"]
     df_first = df_first.rename(columns={"imputation quality":"first imputation quality"})
     df_second = df_second.rename(columns={"imputation quality":"second imputation quality"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
-    df_merge = df_merge[(df_merge["first imputation quality"] == False) & (df_merge["second imputation quality"] == True)]
+    df_merge = df_merge[(df_merge["first imputation quality"] == 'FI') & (df_merge["second imputation quality"] == 'TI')]
     return len(df_merge), df_merge
 
 def count_present_in_one_missing_in_other(df_first, df_second):
     df_first = df_first.rename(columns={"imputation quality":"first imputation quality"})
     df_second = df_second.rename(columns={"imputation quality":"second imputation quality"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
-    df_merge = df_merge[(df_merge["first imputation quality"] != "missing") & (df_merge["second imputation quality"] == "missing")]
+    df_merge = df_merge[(df_merge["first imputation quality"] != 'NI') & (df_merge["second imputation quality"] == 'NI')]
     return len(df_merge)
 
 def count_well_imputed_in_one_missing_in_other(df_first, df_second):
-    df_first = df_first[df_first["imputation quality"] != "missing"]
     df_first = df_first.rename(columns={"imputation quality":"first imputation quality"})
     df_second = df_second.rename(columns={"imputation quality":"second imputation quality"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
-    df_merge = df_merge[(df_merge["first imputation quality"] == True) & (df_merge["second imputation quality"] == "missing")]
+    df_merge = df_merge[(df_merge["first imputation quality"] == 'TI') & (df_merge["second imputation quality"] == 'NI')]
     return len(df_merge), df_merge
 
 def count_well_imputed_both(df_first, df_second):
-    df_second = df_second[df_second["imputation quality"] != "missing"]
-    df_first = df_first[df_first["imputation quality"] != "missing"]
     df_first = df_first.rename(columns={"imputation quality":"first imputation quality"})
     df_second = df_second.rename(columns={"imputation quality":"second imputation quality"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
-    df_merge = df_merge[(df_merge["first imputation quality"] == True) & (df_merge["second imputation quality"] == True)]
+    df_merge = df_merge[(df_merge["first imputation quality"] == 'TI') & (df_merge["second imputation quality"] == 'TI')]
     return len(df_merge)
 
 def count_badly_imputed_both(df_first, df_second):
-    df_second = df_second[df_second["imputation quality"] != "missing"]
-    df_first = df_first[df_first["imputation quality"] != "missing"]
     df_first = df_first.rename(columns={"imputation quality":"first imputation quality"})
     df_second = df_second.rename(columns={"imputation quality":"second imputation quality"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
-    df_merge = df_merge[(df_merge["first imputation quality"] == False) & (df_merge["second imputation quality"] == False)]
+    df_merge = df_merge[(df_merge["first imputation quality"] == 'FI') & (df_merge["second imputation quality"] == 'FI')]
     return len(df_merge)
-
 
 def count_missing_both(df_first, df_second):
     df_first = df_first.rename(columns={"imputation quality":"first imputation quality"})
     df_second = df_second.rename(columns={"imputation quality":"second imputation quality"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
-    df_merge = df_merge[(df_merge["first imputation quality"] == "missing") & (df_merge["second imputation quality"] == "missing")]
+    df_merge = df_merge[(df_merge["first imputation quality"] == "NI") & (df_merge["second imputation quality"] == "NI")]
     return len(df_merge), df_merge
 
 if __name__ == "__main__":
@@ -102,8 +93,8 @@ if __name__ == "__main__":
     second_reference_name = args.in_second_reference_name
     mode = args.mode
 
-    df_first = pd.read_csv(path_first, sep="\t")
-    df_second = pd.read_csv(path_second, sep="\t")
+    df_first = pd.read_csv(path_first, sep="\t", names = ['CHROM', 'POS', 'REF', 'ALT', 'imp genotype', 'ref genotype', 'imputation quality'])
+    df_second = pd.read_csv(path_second, sep="\t", names = ['CHROM', 'POS', 'REF', 'ALT', 'imp genotype', 'ref genotype', 'imputation quality'])
 
     cbf = count_badly_imputed(df_first)
     cbs = count_badly_imputed(df_second)
