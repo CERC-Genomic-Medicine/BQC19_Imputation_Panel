@@ -34,7 +34,7 @@ def read_variant(filename, sample_name, imputed_flag, chrom, start, stop):
             assert len(record.alts) == 1
             if (len(record.alts) != 1):
                 continue
-            gt = list(value['GT'] for value in record.samples.values())[0]
+            gt = sum(list(value['GT'] for value in record.samples.values())[0])
             
             if (imputed_flag == True):
                 yield (record.pos, record.ref, record.alts[0], gt, record.info["IMPUTED"])
@@ -64,8 +64,8 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
                         fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tOI\n").encode()) # only imputed
                     elif imp_pos == truth_pos:
                         imp_variants_buffer.pop(0)
-                        if imp_ref == truth_ref and imp_alt == truth_alt:
-                            if(imp_gt.count(1) == truth_gt.count(1)):
+                        if ((imp_ref == truth_ref) and (imp_alt == truth_alt)):
+                            if(imp_gt == truth_gt):
                                 if (not imp_flag):
                                     imputed_truth = True
                                     fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tTT\n").encode()) # truely genotyped
@@ -90,7 +90,7 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
                 if (imputed_truth == False):
                     fw.write((f"{chrom}\t{truth_pos}\t{truth_ref}\t{truth_alt}\t{None}\t{truth_gt}\tNI\n").encode()) # only truth
 
-            for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
+            for imp_pos, imp_ref, imp_alt, imp_gt, imp_flag in imp_variants:
                     imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))      
             for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants_buffer:
                     fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tOI\n").encode()) # only imputed
