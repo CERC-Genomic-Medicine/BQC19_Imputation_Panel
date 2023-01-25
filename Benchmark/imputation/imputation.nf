@@ -83,8 +83,8 @@ process rm_chr_name_study{
     tuple val(chr_name), file("*.vcf.gz"), file("*.vcf.gz.tbi") into study_comp_ch  mode flatten
     
     """
-    echo "${study_num}" > chroms1.txt
-    echo "${study_num:3}" > chroms2.txt
+    echo "${chr_name}" > chroms1.txt
+    echo "${chr_name:3}" > chroms2.txt
 
     paste chroms1.txt chroms2.txt > chr_name_conv.txt  
 
