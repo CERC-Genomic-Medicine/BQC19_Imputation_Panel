@@ -24,7 +24,7 @@ process rm_chr_name_ref{
     cache "lenient"
     
     input:
-    set val(chr_name), file(vcf), file(vcf_index) from ref_vcfs.map{ vcf -> [ vcf, vcf + ".tbi" ] }
+    set val(chr_name), file(vcf), file(vcf_index) from ref_vcfs
 
     output:
     tuple val(chr_name), file("*.vcf.gz"), file("*.vcf.gz.tbi") into ref_comp_ch  mode flatten
@@ -77,7 +77,7 @@ process rm_chr_name_study{
     cache "lenient"
     
     input:
-    set val(chr_name), file(vcf), file(vcf_index) from study_vcfs.map{ vcf -> [ vcf, vcf + ".tbi" ] }
+    set val(chr_name), file(vcf), file(vcf_index) from study_vcfs
 
     output:
     tuple val(chr_name), file("*.vcf.gz"), file("*.vcf.gz.tbi") into study_comp_ch  mode flatten
