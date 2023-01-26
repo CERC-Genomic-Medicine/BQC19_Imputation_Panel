@@ -103,10 +103,10 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
                         break    
                 if (imputed_truth == False):
                     if(truth_gt != 0):
-                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tNI\tNZGT\tWGS\n").encode()) # only truth, Non-Zero genotype in WGS
+                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS\tNZGT\tOnly_WGS\n").encode()) # only truth, Non-Zero genotype in WGS
                         break
                     else:
-                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tNI\tZGT\tWGS\n").encode()) # only truth, Zero genotype in WGS
+                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS\tZGT\tOnly_WGS\n").encode()) # only truth, Zero genotype in WGS
                         break
 
             for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
