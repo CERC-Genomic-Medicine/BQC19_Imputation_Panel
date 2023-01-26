@@ -1,7 +1,7 @@
 /*
 * AUTHOR: Mohadese Sayahian Dehkordi, <mohadese.sayahiandehkordi@mail.mcgill.ca>
 * VERSION: 1.0
-* YEAR: 2022
+* YEAR: 2023
 */
 
 process get_imputed_chr_names {
@@ -122,7 +122,7 @@ process concat_all_samples_summary {
 
    """
    awk 'FNR>1' ${summary_per_sample} > ${params.ref_name}_concat_all_summary.txt
-   sed -i -e '1iSample ID\tNumber of Concordant\tNumber of Discordant\tNumber of Only Imputed\tNumber of Not Imputed\t Number of Truely Typed\tNumber of Falsely Typed\n' ${params.ref_name}_concat_all_summary.txt
+   sed -i -e '1iSample ID\tWGS\tREF\tWGS_AND_REF\tWGS_AND_REF_EQ\tWGS_AND_REF_LT\tWGS_AND_REF_GT\tREF_0ALT\tREF_WALT\tWGS_0ALT\tWGS_WALT\n' ${params.ref_name}_concat_all_summary.txt
    """
 }
 

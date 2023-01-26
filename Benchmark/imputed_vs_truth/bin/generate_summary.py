@@ -39,7 +39,7 @@ def calculates_stats(sample_ID, input_file, path_out):
 
     result_dict = {'Sample ID':[sample_ID], 'WGS':[Only_WGS], 'REF': [Only_REF], 'WGS_AND_REF': [WGS_AND_REF],\
      'WGS_AND_REF_EQ': [WGS_AND_REF_EQ], 'WGS_AND_REF_LT':[WGS_AND_REF_LT], 'WGS_AND_REF_GT':[WGS_AND_REF_GT],\
-     'REF_0ALT' : [IMP_Zero], 'REF_WALT' : [IMP_Non_Zero], 'WGS_0ALT':[WGS_Zero], 'WGS_Non_Zero':[WGS_Non_Zero]}
+     'REF_0ALT' : [IMP_Zero], 'REF_WALT' : [IMP_Non_Zero], 'WGS_0ALT':[WGS_Zero], 'WGS_WALT':[WGS_Non_Zero]}
     result_dataframe = pd.DataFrame(result_dict)
     result_dataframe.to_csv(path_out, sep="\t", index = False)
 
