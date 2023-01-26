@@ -20,7 +20,7 @@ FT refers to variants that are present in genotyping array and the imputed genot
 """
 
 
-def read_variant(filename, sample_name, imputed_flag, chrom, start, stop):
+def read_variant(filename, sample_name, chrom, start, stop):
     with pysam.VariantFile(filename) as ivcf:
         if any(c.startswith('chr') for c in ivcf.header.contigs): # add or remove 'chr' prefix if needed, depending on VCF header
             if not chrom.startswith('chr'):
@@ -30,17 +30,18 @@ def read_variant(filename, sample_name, imputed_flag, chrom, start, stop):
                 chrom = chrom[3:]
         ivcf.subset_samples([sample_name])
         for record in ivcf.fetch(contig = chrom, start = start, stop = stop):
-            #if (imputed_flag == True):
-             #if not record.info["IMPUTED"]:
-             #   continue
             assert len(record.alts) == 1
             if (len(record.alts) != 1):
                 continue
-            gt = (list(value['GT'] for value in record.samples.values())[0]).count(1)
+            print(list(value['GT'] for value in record.samples.values())[0])
+            gt = sum(list(value['GT'] for value in record.samples.values())[0])
+            print(gt)
             if (imputed_flag == True):
-                yield (record.pos, record.ref, record.alts[0], gt, record.info["IMPUTED"])
+                yield (record.pos, record.ref, record.alts[0], gt)
             else:
                 yield (record.pos, record.ref, record.alts[0], gt)
+
+
 
 def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
     with pysam.VariantFile(imputed_gt_filename) as ivcf:
@@ -52,50 +53,69 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
         imp_variants_buffer = []
         with pysam.BGZFile(path_out, 'w')  as fw:
             for truth_pos, truth_ref, truth_alt, truth_gt in truth_variants:
-                for imp_pos, imp_ref, imp_alt, imp_gt, imp_flag in imp_variants:
-                    imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt, imp_flag))
+                for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
+                    imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))
                     if imp_pos > truth_pos:
                         break
                 
                 imputed_truth = False
                 while imp_variants_buffer:
-                    imp_pos, imp_ref, imp_alt, imp_gt, imp_flag = imp_variants_buffer[0]
+                    imp_pos, imp_ref, imp_alt, imp_gt = imp_variants_buffer[0]
                     if imp_pos < truth_pos:
                         imp_variants_buffer.pop(0)
-                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tOI\n").encode()) # only imputed
+                        if(imp_gt != 0):
+                            fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tNZIMP\tOnly_REF\n").encode()) # only imputed
+                        else:
+                            fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tZIMP\tOnly_REF\n").encode()) # only imputed
                     elif imp_pos == truth_pos:
                         imp_variants_buffer.pop(0)
                         if ((imp_ref == truth_ref) and (imp_alt == truth_alt)):
                             if(imp_gt == truth_gt):
-                                if (not imp_flag):
                                     imputed_truth = True
-                                    fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tTT\n").encode()) # truely genotyped
-                                    break
-                                else:
+                                    if(truth_gt != 0):
+                                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_AND_REF_EQ\tNZGT\tWGS_AND_REF\n").encode()) # imputed and in truth, Non-Zero genotype in WGS
+                                        break
+                                    else:
+                                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_AND_REF_EQ\tZGT\tWGS_AND_REF\n").encode()) # imputed and in truth, Zero genotype in WGS
+                                        break
+                            elif(truth_gt < imp_gt):
                                     imputed_truth = True
-                                    fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tTI\n").encode()) # imputed and in truth
-                                    break
+                                    if(truth_gt != 0):
+                                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_AND_REF_LT\tNZGT\tWGS_AND_REF\n").encode()) # imputed and in truth, Non-Zero genotype in WGS
+                                        break
+                                    else:
+                                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_AND_REF_LT\tZGT\tWGS_AND_REF\n").encode()) # imputed and in truth, Zero genotype in WGS
+                                        break
                             else:
-                                if (not imp_flag):
                                     imputed_truth = True
-                                    fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tFT\n").encode()) # falsely genotyped
-                                    break
-                                else:
-                                    imputed_truth = True
-                                    fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tFI\n").encode()) # imputed and in truth
-                                    break
+                                    if(truth_gt != 0):
+                                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_AND_REF_GT\tNZGT\tWGS_AND_REF\n").encode()) # imputed and in truth, Non-Zero genotype in WGS
+                                        break
+                                    else:
+                                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_AND_REF_GT\tZGT\tWGS_AND_REF\n").encode()) # imputed and in truth, Zero genotype in WGS
+                                        break
                         else:
-                            fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tOI\n").encode()) # only imputed
+                            if(imp_gt != 0):
+                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tNZIMP\tOnly_REF\n").encode()) # only imputed
+                            else:
+                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tZIMP\tOnly_REF\n").encode()) # only imputed
                     else:
                         break    
                 if (imputed_truth == False):
-                    fw.write((f"{chrom}\t{truth_pos}\t{truth_ref}\t{truth_alt}\t{None}\t{truth_gt}\tNI\n").encode()) # only truth
+                    if(truth_gt != 0):
+                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tNI\tNZGT\tWGS\n").encode()) # only truth, Non-Zero genotype in WGS
+                        break
+                    else:
+                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tNI\tZGT\tWGS\n").encode()) # only truth, Zero genotype in WGS
+                        break
 
-            for imp_pos, imp_ref, imp_alt, imp_gt, imp_flag in imp_variants:
+            for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
                     imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))      
             for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants_buffer:
-                    fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tOI\n").encode()) # only imputed
-
+                    if(imp_gt != 0):
+                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tNZIMP\tOnly_REF\n").encode()) # only imputed
+                    else:
+                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tZIMP\tOnly_REF\n").encode()) # only imputed
 
 if __name__ == "__main__":
     args = argparser.parse_args()
