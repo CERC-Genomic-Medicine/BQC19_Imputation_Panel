@@ -64,9 +64,9 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
                     if imp_pos < truth_pos:
                         imp_variants_buffer.pop(0)
                         if(imp_gt != 0):
-                            fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tNZIMP\tOnly_REF\n").encode()) # only imputed
+                            fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tNZIMP\tOnly_REF\n").encode()) # only imputed, Non-Zero genotype in WGS
                         else:
-                            fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tZIMP\tOnly_REF\n").encode()) # only imputed
+                            fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tZIMP\tOnly_REF\n").encode()) # only imputed, Zero genotype in WGS
                     elif imp_pos == truth_pos:
                         imp_variants_buffer.pop(0)
                         if ((imp_ref == truth_ref) and (imp_alt == truth_alt)):
@@ -96,9 +96,9 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
                                         break
                         else:
                             if(imp_gt != 0):
-                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tNZIMP\tOnly_REF\n").encode()) # only imputed
+                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tNZIMP\tOnly_REF\n").encode()) # only imputed, Non-Zero genotype in WGS
                             else:
-                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tZIMP\tOnly_REF\n").encode()) # only imputed
+                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tZIMP\tOnly_REF\n").encode()) # only imputed, Zero genotype in WGS
                     else:
                         break    
                 if (imputed_truth == False):
@@ -113,9 +113,9 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
                     imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))      
             for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants_buffer:
                     if(imp_gt != 0):
-                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tNZIMP\tOnly_REF\n").encode()) # only imputed
+                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tNZIMP\tOnly_REF\n").encode()) # only imputed, Non-Zero genotype in WGS
                     else:
-                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tZIMP\tOnly_REF\n").encode()) # only imputed
+                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tZIMP\tOnly_REF\n").encode()) # only imputed, Zero genotype in WGS
 
 if __name__ == "__main__":
     args = argparser.parse_args()
