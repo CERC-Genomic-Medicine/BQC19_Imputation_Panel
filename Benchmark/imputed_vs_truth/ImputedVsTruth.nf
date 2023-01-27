@@ -49,6 +49,7 @@ process get_imputed_sample_names {
 process imputed_vs_truth {
    //errorStrategy "retry"
    //maxRetries 3
+   //debug true
    cache "lenient"
    cpus 1
    memory "4GB"

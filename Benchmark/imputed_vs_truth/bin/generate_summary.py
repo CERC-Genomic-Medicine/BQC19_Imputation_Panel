@@ -36,7 +36,7 @@ def calculates_stats(sample_ID, input_file, path_out):
     WGS_Non_Zero = counts_zero_or_not['NZGT'] if ('NZGT' in list_index) else 0
     IMP_Zero = counts_zero_or_not['ZIMP'] if ('ZIMP' in list_index) else 0
     IMP_Non_Zero = counts_zero_or_not['NZIMP'] if ('NZIMP' in list_index) else 0
-
+    
     result_dict = {'Sample ID':[sample_ID], 'WGS':[Only_WGS], 'REF': [Only_REF], 'WGS_AND_REF': [WGS_AND_REF],\
      'WGS_AND_REF_EQ': [WGS_AND_REF_EQ], 'WGS_AND_REF_LT':[WGS_AND_REF_LT], 'WGS_AND_REF_GT':[WGS_AND_REF_GT],\
      'REF_0ALT' : [IMP_Zero], 'REF_WALT' : [IMP_Non_Zero], 'WGS_0ALT':[WGS_Zero], 'WGS_WALT':[WGS_Non_Zero]}

@@ -11,12 +11,6 @@ argparser.add_argument('-s', '--sample_name', metavar = 'name', dest = 'in_sampl
 argparser.add_argument('-o', '--output_file', metavar = 'file', dest = 'out_file_name', type = str, required = True, help = 'Output file name. Output file will be compressed using gzip.')
 """
 Variant type encoding:
-OI refers to variants that are present in "only" reference panel but truth files.
-NI refers to variants that are "missing" in the reference panel but they are present in the "truth" vcf files.
-TI refers to varants that are present in both reference panel and truth vcf files, and the truth and imputed genotypes have same number of alternate alleles.
-FI refers to variants that are present in both reference panel and truth vcf files, however the truth and imputed genotypes have different number of alternate alleles. 
-TT refers to variants that are present in genotyping array and the imputed genotypes have same number of alt alleles to truth.
-FT refers to variants that are present in genotyping array and the imputed genotypes have different number of alt alleles to truth.
 """
 
 
@@ -36,10 +30,7 @@ def read_variant(filename, sample_name, chrom, start, stop):
             print(list(value['GT'] for value in record.samples.values())[0])
             gt = sum(list(value['GT'] for value in record.samples.values())[0])
             print(gt)
-            if (imputed_flag == True):
-                yield (record.pos, record.ref, record.alts[0], gt)
-            else:
-                yield (record.pos, record.ref, record.alts[0], gt)
+            yield (record.pos, record.ref, record.alts[0], gt)
 
 
 
@@ -48,8 +39,8 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
         chroms = list(ivcf.header.contigs)
 
     for chrom in chroms:
-        imp_variants = read_variant(imputed_gt_filename, sample_name, True, chrom, None, None)
-        truth_variants = read_variant(truth_gt_filename, sample_name, False, chrom, None, None)
+        imp_variants = read_variant(imputed_gt_filename, sample_name, chrom, None, None)
+        truth_variants = read_variant(truth_gt_filename, sample_name, chrom, None, None)
         imp_variants_buffer = []
         with pysam.BGZFile(path_out, 'w')  as fw:
             for truth_pos, truth_ref, truth_alt, truth_gt in truth_variants:
@@ -104,10 +95,8 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
                 if (imputed_truth == False):
                     if(truth_gt != 0):
                         fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS\tNZGT\tOnly_WGS\n").encode()) # only truth, Non-Zero genotype in WGS
-                        break
                     else:
                         fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS\tZGT\tOnly_WGS\n").encode()) # only truth, Zero genotype in WGS
-                        break
 
             for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
                     imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))      
