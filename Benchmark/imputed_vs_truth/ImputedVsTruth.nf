@@ -99,7 +99,7 @@ process generate_summary {
    tuple val(individual), path(quality_file_per_sample)
 
    output:
-   tuple path("*.txt")
+   path("*.txt")
 
    publishDir "result/${params.ref_name}/summary/", pattern: "*.txt", mode: "copy"
    """
