@@ -27,11 +27,14 @@ process rm_chr_name_ref{
     set val(chr_name), file(vcf), file(vcf_index) from ref_vcfs
 
     output:
-    tuple val(chr_name), file("*.vcf.gz"), file("*.vcf.gz.tbi") into ref_comp_ch  mode flatten
+    tuple val(chr_name), file("*.vcf.gz"), file("*.vcf.gz.tbi"), file("chr_name_conv.txt") into ref_comp_ch  mode flatten
     
+    publishDir "test/", pattern: "chr_name_conv.txt", mode: "copy"
+
     """
     echo "${chr_name}" > chroms1.txt
-    echo "${chr_name:3}" > chroms2.txt
+    chr=${chr_name}
+    echo "\${chr:3}" > chroms2.txt
 
     paste chroms1.txt chroms2.txt > chr_name_conv.txt   
     
@@ -39,8 +42,6 @@ process rm_chr_name_ref{
     bcftools index --tbi ${vcf.getBaseName()}.vcf.gz
     """
 }
-
-
 
 process convert_ref_vcf{
     cache "lenient"
@@ -84,7 +85,8 @@ process rm_chr_name_study{
     
     """
     echo "${chr_name}" > chroms1.txt
-    echo "${chr_name:3}" > chroms2.txt
+    chr=${chr_name}
+    echo "\${chr:3}" > chroms2.txt
 
     paste chroms1.txt chroms2.txt > chr_name_conv.txt  
 
