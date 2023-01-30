@@ -30,7 +30,7 @@ def read_variant(filename, sample_name, chrom, start, stop):
             #if ((list(value['GT'] for value in record.samples.values())[0][0]) == None):
              #   continue
 
-            gt = (list(value['GT'] for value in record.samples.values())[0]).count()
+            gt = (list(value['GT'] for value in record.samples.values())[0]).count(1)
             yield (record.pos, record.ref, record.alts[0], gt)
 
 
