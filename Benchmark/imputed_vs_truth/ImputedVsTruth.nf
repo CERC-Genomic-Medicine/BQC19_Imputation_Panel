@@ -123,7 +123,7 @@ process concat_all_samples_summary {
 
    """
    awk 'FNR>1' ${summary_per_sample} > ${params.ref_name}_concat_all_summary.txt
-   sed -i -e '1iSample ID\tWGS\tREF\tWGS_AND_REF\tWGS_AND_REF_EQ\tWGS_AND_REF_LT\tWGS_AND_REF_GT\tREF_0ALT\tREF_WALT\tWGS_0ALT\tWGS_WALT\n' ${params.ref_name}_concat_all_summary.txt
+   sed -i -e '1iSample ID\tWGS\tREF\tWGS_AND_REF\tWGS_AND_REF_EQ\tWGS_AND_REF_LT\tWGS_AND_REF_GT\tREF_0ALT\tWGS_0ALT\n' ${params.ref_name}_concat_all_summary.txt
    """
 }
 
@@ -134,8 +134,6 @@ workflow {
 
    imputed_by_chr = get_imputed_chr_names(imputed_files).map{ it -> [it[0].startsWith("chr") ? it[0].substring(3).trim() : it[0].trim(), it[1], it[2]] }
    truth_by_chr = get_truth_chr_names(truth_files).map{ it -> [it[0].startsWith("chr") ? it[0].substring(3).trim() : it[0].trim(), it[1], it[2]] }
-   truth_by_chr.view { "value: $it" }
-   imputed_by_chr.view { "value: $it" }
    
    all_by_chr = imputed_by_chr.join(truth_by_chr)
    imputed_sample_names = get_imputed_sample_names(Channel.fromPath(params.imputed_files).first().map{ vcf -> [vcf, vcf + ".tbi"] }).flatMap{ it -> it.split("\n")}.flatMap{ it -> it.split("\t")}

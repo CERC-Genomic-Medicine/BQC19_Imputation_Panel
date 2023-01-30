@@ -27,9 +27,10 @@ def read_variant(filename, sample_name, chrom, start, stop):
             assert len(record.alts) == 1
             if (len(record.alts) != 1):
                 continue
-            print(list(value['GT'] for value in record.samples.values())[0])
-            gt = sum(list(value['GT'] for value in record.samples.values())[0])
-            print(gt)
+            #if ((list(value['GT'] for value in record.samples.values())[0][0]) == None):
+             #   continue
+
+            gt = (list(value['GT'] for value in record.samples.values())[0]).count()
             yield (record.pos, record.ref, record.alts[0], gt)
 
 
@@ -55,56 +56,53 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
                     if imp_pos < truth_pos:
                         imp_variants_buffer.pop(0)
                         if(imp_gt != 0):
-                            fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tNZIMP\tOnly_REF\n").encode()) # only imputed, Non-Zero genotype in WGS
+                            fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\n").encode()) # only imputed, Non-Zero genotype in WGS
                         else:
-                            fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tZIMP\tOnly_REF\n").encode()) # only imputed, Zero genotype in WGS
+                            fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF_0ALT\n").encode()) # only imputed, Zero genotype in WGS
                     elif imp_pos == truth_pos:
                         imp_variants_buffer.pop(0)
                         if ((imp_ref == truth_ref) and (imp_alt == truth_alt)):
                             if(imp_gt == truth_gt):
                                     imputed_truth = True
                                     if(truth_gt != 0):
-                                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_AND_REF_EQ\tNZGT\tWGS_AND_REF\n").encode()) # imputed and in truth, Non-Zero genotype in WGS
+                                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_AND_REF_EQ\n").encode()) # imputed and in truth, Non-Zero genotype in WGS
                                         break
                                     else:
-                                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_AND_REF_EQ\tZGT\tWGS_AND_REF\n").encode()) # imputed and in truth, Zero genotype in WGS
+                                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_0ALT_AND_REF_EQ\n").encode()) # imputed and in truth, Zero genotype in WGS
                                         break
                             elif(truth_gt < imp_gt):
                                     imputed_truth = True
                                     if(truth_gt != 0):
-                                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_AND_REF_LT\tNZGT\tWGS_AND_REF\n").encode()) # imputed and in truth, Non-Zero genotype in WGS
+                                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_AND_REF_LT\n").encode()) # imputed and in truth, Non-Zero genotype in WGS
                                         break
                                     else:
-                                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_AND_REF_LT\tZGT\tWGS_AND_REF\n").encode()) # imputed and in truth, Zero genotype in WGS
+                                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_0ALT_AND_REF_LT\n").encode()) # imputed and in truth, Zero genotype in WGS
                                         break
                             else:
                                     imputed_truth = True
-                                    if(truth_gt != 0):
-                                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_AND_REF_GT\tNZGT\tWGS_AND_REF\n").encode()) # imputed and in truth, Non-Zero genotype in WGS
-                                        break
-                                    else:
-                                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_AND_REF_GT\tZGT\tWGS_AND_REF\n").encode()) # imputed and in truth, Zero genotype in WGS
-                                        break
+                                    fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_AND_REF_GT\n").encode()) # imputed and in truth, Non-Zero genotype in WGS
+                                    break
+                          
                         else:
                             if(imp_gt != 0):
-                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tNZIMP\tOnly_REF\n").encode()) # only imputed, Non-Zero genotype in WGS
+                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\n").encode()) # only imputed, Non-Zero genotype in WGS
                             else:
-                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tZIMP\tOnly_REF\n").encode()) # only imputed, Zero genotype in WGS
+                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF_0ALT\n").encode()) # only imputed, Zero genotype in WGS
                     else:
                         break    
                 if (imputed_truth == False):
                     if(truth_gt != 0):
-                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS\tNZGT\tOnly_WGS\n").encode()) # only truth, Non-Zero genotype in WGS
+                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS\n").encode()) # only truth, Non-Zero genotype in WGS
                     else:
-                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS\tZGT\tOnly_WGS\n").encode()) # only truth, Zero genotype in WGS
+                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_0ALT\n").encode()) # only truth, Zero genotype in WGS
 
             for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
                     imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))      
             for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants_buffer:
                     if(imp_gt != 0):
-                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tNZIMP\tOnly_REF\n").encode()) # only imputed, Non-Zero genotype in WGS
+                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\n").encode()) # only imputed, Non-Zero genotype in WGS
                     else:
-                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\tZIMP\tOnly_REF\n").encode()) # only imputed, Zero genotype in WGS
+                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF_0ALT\n").encode()) # only imputed, Zero genotype in WGS
 
 if __name__ == "__main__":
     args = argparser.parse_args()
