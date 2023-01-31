@@ -84,7 +84,7 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
                             if(imp_gt != 0):
                                 fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\n").encode()) # variant is only present in imputed files, non-zero genotype [(1, 0), (1, 1), (0, 1)].
                             else:
-                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF_0ALT\n").encode()) # variant is only present in imputed files, non-zero genotype [(1, 0), (1, 1), (0, 1)].
+                                fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF_0ALT\n").encode()) # variant is only present in imputed files, zero genotype [(0,0)].
                     else:
                         break    
                 if (imputed_truth == False):
@@ -99,7 +99,7 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
                     if(imp_gt != 0):
                         fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF\n").encode()) # variant is only present in imputed files, non-zero genotype [(1, 0), (1, 1), (0, 1)].
                     else:
-                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF_0ALT\n").encode()) # variant is only present in imputed files, non-zero genotype [(1, 0), (1, 1), (0, 1)].
+                        fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{None}\tREF_0ALT\n").encode()) # variant is only present in imputed files, non-zero genotype [(0, 0)].
 
 if __name__ == "__main__":
     args = argparser.parse_args()
