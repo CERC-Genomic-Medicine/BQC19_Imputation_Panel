@@ -8,7 +8,7 @@ process get_imputed_chr_names {
    cache "lenient"
    cpus 1
    memory "4GB"
-   time "1h"
+   time "00:30:00"
    scratch true
    input:
    tuple path(vcf), path(vcf_index)
@@ -22,7 +22,7 @@ process get_truth_chr_names {
    cache "lenient"
    cpus 1
    memory "4GB"
-   time "1h"
+   time "00:30:00"
    scratch true
    input:
    tuple path(vcf), path(vcf_index)
@@ -36,7 +36,7 @@ process get_imputed_sample_names {
    cache "lenient"
    cpus 1
    memory "4GB"
-   time "1h"
+   time "00:30:00"
    scratch true
    input:
    tuple path(vcf), path(vcf_index)
@@ -53,7 +53,7 @@ process imputed_vs_truth {
    cache "lenient"
    cpus 1
    memory "4GB"
-   time "1h"
+   time "00:30:00"
    scratch true
    input:
    tuple val(chromosome), path(imputed_vcf), path(imputed_vcf_index), path(truth_vcf), path(truth_vcf_index)
@@ -73,7 +73,7 @@ process imputed_vs_truth {
     cache "lenient"
     cpus 1
     memory "4GB"
-    time "1h"
+    time "00:30:00"
     scratch true
 
     input:
@@ -92,7 +92,7 @@ process generate_summary {
    cache "lenient"
    cpus 1
    memory "4GB"
-   time "1h"
+   time "00:30:00"
    scratch true
 
    input:
@@ -111,7 +111,7 @@ process concat_all_samples_summary {
    cache "lenient"
    cpus 1
    memory "4GB"
-   time "1h"
+   time "00:30:00"
    scratch true
 
    input:
