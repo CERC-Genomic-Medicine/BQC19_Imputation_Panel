@@ -44,3 +44,32 @@ Here is the list of categories and metrics:
 - (REF - REF_0ALT) / REF : (REF - REF_0ALT
 ### concat_all_samples_summary process
 This process concats all summary files for all individuals and returns one txt file
+
+## Usage
+1- Create a python virtual environment.
+2- Activate your virtual environmnet.
+3- Intall following packages in the virtual environment:
+- pysam
+- pandas
+4- Install nextflow.
+5- Install tabix.
+6- Load nextflow.
+7- Load tabix.
+8- Make a copy of this repository in your local or in your account on the remote cluster using the following command:
+```bash
+git clone https://github.com/CERC-Genomic-Medicine/BQC19_Imputation_Panel.git
+```
+9- Create a new folder in which the results of the pipeline and log files related to running process will be generated.
+10- Go to your new folder and copy the nextflow.config file from this repository, there.
+11- Edit the nextflow.config file based on your need. Put the address of the imputed and truth vcf files in the nextflow.config file. This pipeline only works with vcf format.
+12- Now modify and run the following bash commands in your folder. You can also generate a bash file by following commands and execute that:
+```bash
+#!/bin/bash
+
+module load tabix
+module load nextflow
+
+source /home/sayahian/projects/def-vmooser/sayahian/my_env/bin/activate
+sbatch --account=account_name --time=24:00:00 --mem=16G -J Post_Imputation --wrap="nextflow run /path/to/BQC19_Imputation_Panel/Benchmark/imputed_vs_truth/ImputedVsTruth.nf" -o post_imp.slurm.log
+deactivate
+``` 
