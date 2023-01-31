@@ -123,7 +123,7 @@ process concat_all_samples_summary {
 
    """
    awk 'FNR>1' ${summary_per_sample} > ${params.ref_name}_concat_all_summary.txt
-   sed -i -e '1iSample ID\tWGS\tREF\tWGS_AND_REF\tWGS_AND_REF_EQ\tWGS_AND_REF_LT\tWGS_AND_REF_GT\tREF_0ALT\tWGS_0ALT\n' ${params.ref_name}_concat_all_summary.txt
+   sed -i -e '1iSample ID\tWGS\tREF\tWGS_AND_REF\tWGS_AND_REF_EQ\tWGS_AND_REF_LT\tWGS_AND_REF_GT\tREF_0ALT\tWGS_0ALT\t'AA_Concordance_FRAC'\t'AA_Concordance'\t'Coverage'\t'RA_Discordance_FRAC'\t'RA_Discordance'\n' ${params.ref_name}_concat_all_summary.txt
    """
 }
 
