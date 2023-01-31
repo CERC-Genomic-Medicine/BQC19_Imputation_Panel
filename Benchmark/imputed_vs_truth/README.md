@@ -69,7 +69,7 @@ git clone https://github.com/CERC-Genomic-Medicine/BQC19_Imputation_Panel.git
 module load tabix
 module load nextflow
 
-source /home/sayahian/projects/def-vmooser/sayahian/my_env/bin/activate
+source /path/to/your/python/virtual/env/bin/activate
 sbatch --account=account_name --time=24:00:00 --mem=16G -J Post_Imputation --wrap="nextflow run /path/to/BQC19_Imputation_Panel/Benchmark/imputed_vs_truth/ImputedVsTruth.nf" -o post_imp.slurm.log
 deactivate
 ``` 
