@@ -33,7 +33,7 @@ def calculates_stats(sample_ID, input_file, path_out):
     AA_Concordance_FRAC = (WGS_AND_REF_EQ / WGS_AND_REF)
     AA_Concordance = WGS_AND_REF_EQ
     Coverage = abs(WGS - WGS_AND_REF)/WGS
-    REF = (Only_REF + WGS_0ALT_AND_REF_EQ + WGS_0ALT_AND_REF_LT + REF_0ALT)
+    REF = (Only_REF + WGS_0ALT_AND_REF_EQ + WGS_0ALT_AND_REF_LT + Only_REF_0ALT)
     RA_Discordance_FRAC = (Only_REF + WGS_0ALT_AND_REF_LT) / REF
     RA_Discordance = Only_REF + WGS_0ALT_AND_REF_LT
 
