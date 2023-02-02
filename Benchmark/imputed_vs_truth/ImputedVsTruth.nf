@@ -52,7 +52,7 @@ process imputed_vs_truth {
    //debug true
    cache "lenient"
    cpus 1
-   memory "4GB"
+   memory "8GB"
    time "00:30:00"
    scratch true
    input:
@@ -72,7 +72,7 @@ process imputed_vs_truth {
  process concat_by_sample {
     cache "lenient"
     cpus 1
-    memory "4GB"
+    memory "8GB"
     time "00:30:00"
     scratch true
 
@@ -91,8 +91,8 @@ process imputed_vs_truth {
 process generate_summary {
    cache "lenient"
    cpus 1
-   memory "16GB"
-   time "00:30:00"
+   memory "64GB"
+   time "01:00:00"
    scratch true
 
    input:
@@ -110,7 +110,7 @@ process generate_summary {
 process concat_all_samples_summary {
    cache "lenient"
    cpus 1
-   memory "4GB"
+   memory "8GB"
    time "00:15:00"
    scratch true
 
