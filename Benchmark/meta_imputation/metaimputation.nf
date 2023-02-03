@@ -8,15 +8,15 @@ process metaimputation{
     cache "lenient"
     
     input:
-    set val(ref_chr_num), val(first_ref_name), val(second_ref_name)
+    tuple val(ref_chr_num), val(first_ref_name), val(second_ref_name)
      
     output:
     file("*.vcf.gz") 
 
     publishDir "meta_imputed_vcfs/", pattern: "*.vcf.gz", mode: "copy"
     """
-    first_ref_file_name=${params.first_ref_path}${ref_chr_num}${first_ref_name}
-    second_ref_file_name=${params.second_ref_path}${ref_chr_num}${second_ref_name}
+    first_ref_file_name=${params.first_ref_path}${first_ref_name}.${ref_chr_num}
+    second_ref_file_name=${params.second_ref_path}${second_ref_name}.${ref_chr_num}
     ${params.metaminimac2} -i \${first_ref_file_name}:\${second_ref_file_name} --skipPhasingCheck "[ON]"
     """
 }
