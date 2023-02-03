@@ -27,7 +27,7 @@ process rm_chr_name_ref{
     set val(chr_name), file(vcf), file(vcf_index) from ref_vcfs
 
     output:
-    tuple val(chr_name), file("*.vcf.gz"), file("*.vcf.gz.tbi"), file("chr_name_conv.txt") into ref_comp_ch  mode flatten
+    tuple val(chr_name), file("*.vcf.gz"), file("*.vcf.gz.tbi") into ref_comp_ch  mode flatten
     
     publishDir "test/", pattern: "chr_name_conv.txt", mode: "copy"
 
@@ -108,6 +108,6 @@ process imputation{
     publishDir "imputed_vcfs/", pattern: "*.vcf.gz", mode: "copy"
     publishDir "imputed_info/", pattern: "*.info", mode: "copy"
     """
-    ${params.minimac4} --refHaps $ref_vcf --haps $study_vcf --prefix ${study_vcf.getBaseName()} --ignoreDuplicates
+    ${params.minimac4} --refHaps $ref_vcf --haps $study_vcf --prefix ${study_vcf.getBaseName()} --meta --ignoreDuplicates
     """
 }
