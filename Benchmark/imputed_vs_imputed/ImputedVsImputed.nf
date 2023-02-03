@@ -37,7 +37,7 @@ workflow {
 
     second_reference_file = Channel.fromPath(params.post_imputation_files_second_reference).map{ file -> [file.name.toString().tokenize('_').get(0), file.name.toString().tokenize('_').get(1), file.name.toString().tokenize('_').get(2), file] }
 
-    combine_channel = first_reference_file.join(second_reference_file, by: [0, 1])
+    combine_channel = first_reference_file.join(second_reference_file)
     imputed_vs_imputed(combine_channel)
 
     
