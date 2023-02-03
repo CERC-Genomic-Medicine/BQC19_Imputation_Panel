@@ -8,7 +8,7 @@ process metaimputation{
     cache "lenient"
     
     input:
-    set val(ref_chr_num), val(first_ref_name) file(first_ref_vcf), file(first_ref_vcf_index), val(second_ref_name), file(second_ref_vcf), file(second_ref_vcf_index)
+    set val(ref_chr_num), val(first_ref_name) file(first_ref_vcf), val(second_ref_name), file(second_ref_vcf)
      
     output:
     tuple file("*.vcf.gz") into imputed_results mode flatten
@@ -22,9 +22,9 @@ process metaimputation{
 }
 
 workflow {
-   first_imputed_files = ref_ch = Channel.fromPath(params.first_ref_files).map { file -> [ file.name.toString().tokenize('.').get(1), file.name.toString().tokenize('.').get(0), file, file + ".tbi"] }
+   first_imputed_files = ref_ch = Channel.fromPath(params.first_ref_files).map { file -> [ file.name.toString().tokenize('.').get(1), file.name.toString().tokenize('.').get(0), file] }
 
-   second_imputed_files = Channel.fromPath(params.second_ref_files).map { file -> [ file.name.toString().tokenize('.').get(1), file.name.toString().tokenize('.').get(0), file, file + ".tbi"] }
+   second_imputed_files = Channel.fromPath(params.second_ref_files).map { file -> [ file.name.toString().tokenize('.').get(1), file.name.toString().tokenize('.').get(0), file] }
 
    join_by_chr = first_imputed_files.join(second_imputed_files)
 
