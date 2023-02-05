@@ -14,6 +14,9 @@ process concat_imputed {
    path(vcfs)
    output:
    tuple path("*.vcf.gz"), path("*.vcf.gz.tbi")
+   publishDir "result/${params.ref_name}/concat/", pattern: "*.gz", mode: "copy"
+   publishDir "result/${params.ref_name}/concat/", pattern: "*.gz.tbi", mode: "copy"
+
    """
    bcftools concat ${vcfs} -Oz -o imputed.vcf.gz
    bcftools index --tbi imputed.vcf.gz
@@ -29,6 +32,9 @@ process concat_truth {
    path(vcfs)
    output:
    tuple path("*.vcf.gz"), path("*.vcf.gz.tbi")
+   publishDir "result/${params.ref_name}/concat/", pattern: "*.gz", mode: "copy"
+   publishDir "result/${params.ref_name}/concat/", pattern: "*.gz.tbi", mode: "copy"
+
    """
    bcftools concat ${vcfs} -Oz -o truth.vcf.gz
    bcftools index --tbi truth.vcf.gz

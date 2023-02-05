@@ -13,18 +13,18 @@ process imputed_vs_imputed {
    //scratch true
 
    input:
-   tuple val(sample_name), val(chromosome), val(first_reference_name), path(first_post_imputation_file), val(second_reference_name), path(second_post_imputation_file)
+   tuple val(sample_name), val(first_reference_name), path(first_post_imputation_file), val(second_reference_name), path(second_post_imputation_file)
 
    output:
    path("*.txt")
 
-   publishDir "result/${params.mode}/post_imputation_analysis/", pattern: "*_post_imputation_analysis.txt", mode: "copy"
-   publishDir "result/${params.mode}/bad_one_well_other/", pattern: "*_bw.txt", mode: "copy"
-   publishDir "result/${params.mode}/well_one_missing_other/", pattern: "*_wm.txt", mode: "copy"
-   publishDir "result/${params.mode}/missing_both/", pattern: "*_mm.txt", mode: "copy"
+   publishDir "result/post_imputation_analysis/", pattern: "*_post_imputation_analysis.txt", mode: "copy"
+   publishDir "result/bad_one_well_other/", pattern: "*_bw.txt", mode: "copy"
+   publishDir "result/well_one_missing_other/", pattern: "*_wm.txt", mode: "copy"
+   publishDir "result/missing_both/", pattern: "*_mm.txt", mode: "copy"
 
     """
-    imputed_vs_imputed.py -fq ${first_post_imputation_file} -sq ${second_post_imputation_file}  -s ${sample_name}  -fr ${first_reference_name} -sr ${second_reference_name} -c ${chromosome} -m ${params.mode}
+    imputed_vs_imputed.py -fq ${first_post_imputation_file} -sq ${second_post_imputation_file}  -s ${sample_name}  -fr ${first_reference_name} -sr ${second_reference_name} 
     """
 }
 
@@ -33,9 +33,9 @@ process imputed_vs_imputed {
 //}
 
 workflow {
-    first_reference_file = Channel.fromPath(params.post_imputation_files_first_reference).map{ file -> [file.name.toString().tokenize('_').get(0), file.name.toString().tokenize('_').get(1), file.name.toString().tokenize('_').get(2), file] }
+    first_reference_file = Channel.fromPath(params.post_imputation_files_first_reference).map{ file -> [file.name.toString().tokenize('_').get(1), file.name.toString().tokenize('_').get(0), file] }
 
-    second_reference_file = Channel.fromPath(params.post_imputation_files_second_reference).map{ file -> [file.name.toString().tokenize('_').get(0), file.name.toString().tokenize('_').get(1), file.name.toString().tokenize('_').get(2), file] }
+    second_reference_file = Channel.fromPath(params.post_imputation_files_second_reference).map{ file -> [file.name.toString().tokenize('_').get(1), file.name.toString().tokenize('_').get(0), file] }
 
     combine_channel = first_reference_file.join(second_reference_file)
     imputed_vs_imputed(combine_channel)

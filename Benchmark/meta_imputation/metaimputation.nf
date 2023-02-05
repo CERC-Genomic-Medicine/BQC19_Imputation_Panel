@@ -17,7 +17,7 @@ process metaimputation{
     """
     first_ref_file_name=./${first_ref_name}.${ref_chr_num}
     second_ref_file_name=./${second_ref_name}.${ref_chr_num}
-    ${params.metaminimac2} -i \${first_ref_file_name}:\${second_ref_file_name} --skipPhasingCheck "[ON]" -o Meta.${first_ref_name}.${second_ref_name}.${ref_chr_num}
+    ${params.metaminimac2} -i \${first_ref_file_name}:\${second_ref_file_name} --skipPhasingCheck "[ON]" --weight "[ON]" -o Meta.${first_ref_name}.${second_ref_name}.${ref_chr_num}
     """
 }
 
