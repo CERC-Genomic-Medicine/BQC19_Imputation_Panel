@@ -101,7 +101,7 @@ process generate_summary {
 process concat_all_samples_summary {
    cache "lenient"
    cpus 1
-   memory "8GB"
+   memory "4GB"
    time "00:15:00"
    scratch true
 
