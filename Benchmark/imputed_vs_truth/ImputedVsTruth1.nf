@@ -4,32 +4,34 @@
 * YEAR: 2023
 */
 
-process get_imputed_chr_names {
+process concat_imputed {
    cache "lenient"
    cpus 1
-   memory "4GB"
-   time "00:30:00"
+   memory "32GB"
+   time "04:00:00"
    scratch true
    input:
-   tuple path(vcf), path(vcf_index)
+   path(vcfs)
    output:
-   tuple stdout, path(vcf), path(vcf_index)
+   tuple path("*.vcf.gz"), path("*.vcf.gz.tbi")
    """
-   tabix -l ${vcf}
+   bcftools concat ${vcfs} -Oz -o imputed.vcf.gz
+   bcftools index --tbi imputed.vcf.gz
    """
 } 
-process get_truth_chr_names {
+process concat_truth {
    cache "lenient"
    cpus 1
-   memory "4GB"
-   time "00:30:00"
+   memory "32GB"
+   time "04:00:00"
    scratch true
    input:
-   tuple path(vcf), path(vcf_index)
+   path(vcfs)
    output:
-   tuple stdout, path(vcf), path(vcf_index)
+   tuple path("*.vcf.gz"), path("*.vcf.gz.tbi")
    """
-   tabix -l ${vcf}
+   bcftools concat ${vcfs} -Oz -o truth.vcf.gz
+   bcftools index --tbi truth.vcf.gz
    """
 }
 process get_imputed_sample_names {
@@ -52,11 +54,12 @@ process imputed_vs_truth {
    //debug true
    cache "lenient"
    cpus 1
-   memory "8GB"
-   time "00:30:00"
+   memory "16GB"
+   time "07:00:00"
    scratch true
    input:
-   tuple val(chromosome), path(imputed_vcf), path(imputed_vcf_index), path(truth_vcf), path(truth_vcf_index)
+   tuple path(imputed_vcf), path(imputed_vcf_index)
+   tuple path(truth_vcf), path(truth_vcf_index)
     each individual
 
     output:
@@ -65,29 +68,11 @@ process imputed_vs_truth {
     publishDir "result/${params.ref_name}/${individual}", pattern: "*.txt.gz", mode: "copy"
 
      """
-     imputed_vs_truth.py -iv ${imputed_vcf} -tv ${truth_vcf} -s ${individual} -o "${params.ref_name}_${individual}_${chromosome}_post_imputation_analysis.txt.gz"
+     imputed_vs_truth.py -iv ${imputed_vcf} -tv ${truth_vcf} -s ${individual} -o "${params.ref_name}_${individual}_post_imputation_analysis.txt.gz"
      """
  }
 
- process concat_by_sample {
-    cache "lenient"
-    cpus 1
-    memory "4GB"
-    time "00:30:00"
-    scratch true
-
-    input:
-    tuple val(individual), path(quality_files)
-
-    output:
-    tuple val(individual), path("*.txt.gz")
-
-    publishDir "result/${params.ref_name}/concat_by_sample/", pattern: "*.txt.gz", mode: "copy"
-    """
-     cat ${quality_files} > ${params.ref_name}_${individual}_concat_all_chromosomes.txt.gz 
-    """
- }
-
+ 
 process generate_summary {
    cache "lenient"
    cpus 1
@@ -129,20 +114,15 @@ process concat_all_samples_summary {
 
 
 workflow {
-   imputed_files = Channel.fromPath(params.imputed_files).map{ vcf -> [ vcf, vcf + ".tbi" ] }  
-   truth_files = Channel.fromPath(params.truth_files).map{ vcf -> [ vcf, vcf + ".tbi" ] }
+   imputed_files = Channel.fromPath(params.imputed_files)
+   truth_files = Channel.fromPath(params.truth_files)
 
-   imputed_by_chr = get_imputed_chr_names(imputed_files).map{ it -> [it[0].startsWith("chr") ? it[0].substring(3).trim() : it[0].trim(), it[1], it[2]] }
-   truth_by_chr = get_truth_chr_names(truth_files).map{ it -> [it[0].startsWith("chr") ? it[0].substring(3).trim() : it[0].trim(), it[1], it[2]] }
-   
-   all_by_chr = imputed_by_chr.join(truth_by_chr)
    imputed_sample_names = get_imputed_sample_names(Channel.fromPath(params.imputed_files).first().map{ vcf -> [vcf, vcf + ".tbi"] }).flatMap{ it -> it.split("\n")}.flatMap{ it -> it.split("\t")}
+   imputed_vcf = concat_imputed(imputed_files.collect())
+   truth_vcf = concat_truth(truth_files.collect())
+   quality_files = imputed_vs_truth(imputed_vcf, truth_vcf, imputed_sample_names)
 
-   quality_files = imputed_vs_truth(all_by_chr, imputed_sample_names)
-   quality_files_per_sample = quality_files.groupTuple(by: 0)
-
-   sample_files_per_inds = concat_by_sample(quality_files_per_sample)
-   summary_files = generate_summary(sample_files_per_inds) 
+   summary_files = generate_summary(quality_files) 
    concat_all_samples_summary(summary_files.collect())
 
  }
