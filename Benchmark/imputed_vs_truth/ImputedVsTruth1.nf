@@ -71,7 +71,7 @@ process imputed_vs_truth {
     output:
     tuple val(individual), path("*${individual}*.txt.gz")
 
-    publishDir "result/${params.ref_name}/${individual}", pattern: "*.txt.gz", mode: "copy"
+    publishDir "result/${params.ref_name}/all/", pattern: "*.txt.gz", mode: "copy"
 
      """
      imputed_vs_truth.py -iv ${imputed_vcf} -tv ${truth_vcf} -s ${individual} -o "${params.ref_name}_${individual}_post_imputation_analysis.txt.gz"
