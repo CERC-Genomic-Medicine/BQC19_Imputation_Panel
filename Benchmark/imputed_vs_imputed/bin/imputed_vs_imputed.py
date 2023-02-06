@@ -48,7 +48,7 @@ def count_badly_imputed_both(df_first, df_second):
     return len(df_merge), df_merge
 
 def count_missing_both(df_first, df_second):
-     df_first = df_first.rename(columns={"type":"first type"})
+    df_first = df_first.rename(columns={"type":"first type"})
     df_second = df_second.rename(columns={"type":"second type"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
     df_merge = df_merge[(df_merge["first type"] == 'WGS') & (df_merge["second type"] == 'WGS')]
@@ -63,8 +63,8 @@ if __name__ == "__main__":
     second_reference_name = args.in_second_reference_name
     
 
-    df_first = pd.read_csv(path_first, sep="\t", names = ['CHROM', 'POS', 'REF', 'ALT', 'imp genotype', 'ref genotype', 'type'])
-    df_second = pd.read_csv(path_second, sep="\t", names = ['CHROM', 'POS', 'REF', 'ALT', 'imp genotype', 'ref genotype', 'type'])
+    df_first = pd.read_csv(path_first, sep="\t", usecols = ['CHROM', 'POS', 'REF', 'ALT', 'type'])
+    df_second = pd.read_csv(path_second, sep="\t", usecols = ['CHROM', 'POS', 'REF', 'ALT', 'type'])
 
 
     cshv = count_shared_variants(df_first, df_second)

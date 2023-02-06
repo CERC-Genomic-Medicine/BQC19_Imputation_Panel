@@ -8,7 +8,7 @@ process imputed_vs_imputed {
    //maxRetries 3
    cache "lenient"
    cpus 1
-   memory "32GB"
+   memory "64GB"
    time "2h"
    //scratch true
 
@@ -39,7 +39,10 @@ process concat {
    //scratch true
 
    input:
-   tuple path(analysis_files), path(badly_one_well_other), path(well_one_missing_other), path(missing_both)
+   path(analysis_files)
+   path(badly_one_well_other)
+   path(well_one_missing_other)
+   path(missing_both)
    output:
    path("*.txt")
 
