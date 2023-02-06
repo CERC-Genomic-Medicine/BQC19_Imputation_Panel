@@ -63,8 +63,8 @@ if __name__ == "__main__":
     second_reference_name = args.in_second_reference_name
     
 
-    df_first = pd.read_csv(path_first, sep="\t", usecols = ['CHROM', 'POS', 'REF', 'ALT', 'type'])
-    df_second = pd.read_csv(path_second, sep="\t", usecols = ['CHROM', 'POS', 'REF', 'ALT', 'type'])
+    df_first = pd.read_csv(path_first, sep="\t", names = ['CHROM', 'POS', 'REF', 'ALT', 'imp_gt', 'truth_gt', 'type'])
+    df_second = pd.read_csv(path_second, sep="\t", names = ['CHROM', 'POS', 'REF', 'ALT', 'imp_gt', 'truth_gt', 'type'])
 
 
     cshv = count_shared_variants(df_first, df_second)
@@ -76,6 +76,24 @@ if __name__ == "__main__":
     cwfws = count_well_imputed_both(df_first, df_second)
     cbfbs = count_badly_imputed_both(df_first, df_second)
     cmfms, df_mfms = count_missing_both(df_first, df_second)
+
+
+
+    result = {"Sample name" : [sample_name], "first reference name" : [first_reference_name], "second reference name" : [second_reference_name],\
+      "Shared variants " : [cshv],\
+      "Disconcordant " + first_reference_name + " Concordant " + second_reference_name : [cbfws], \
+      "Disconcordant " + second_reference_name + " Concordant " + first_reference_name: [cwfbs], \
+      "Concordant " + first_reference_name + " Missing " + second_reference_name : [cwfms],\
+      "Concordant " + second_reference_name + " Missing " + first_reference_name : [cwsmf], "Concordant in both" : [cwfws], "Disconcordant in both" : [cbfbs], "Missing in both" : [cmfms]}
+
+
+    df_res = pd.DataFrame(result) 
+    df_res.to_csv(sample_name + "_" + first_reference_name + "_" + second_reference_name +  "_post_imputation_analysis.txt", sep = "\t", index = None)
+    df_bfws.to_csv(sample_name + "_badly_" + first_reference_name + "_well_" + second_reference_name + "_bw.txt", sep = "\t", index = None)
+    df_wfbs.to_csv(sample_name +  "_well_" + first_reference_name + "_badly_" + second_reference_name + "_bw.txt", sep = "\t", index = None)
+    df_wfms.to_csv(sample_name + "_well_" + first_reference_name + "_missing_" + second_reference_name +  "_wm.txt", sep = "\t", index = None)
+    df_wsmf.to_csv(sample_name + "_missing_" + first_reference_name + "_well_" + second_reference_name +  "_wm.txt", sep = "\t", index = None)
+    df_mfms.to_csv(sample_name + "_missing_" + first_reference_name + "_missing_" + second_reference_name  + "_mm.txt", sep = "\t", index = None)
 
 
 
