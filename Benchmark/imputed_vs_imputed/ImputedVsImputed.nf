@@ -20,11 +20,13 @@ process imputed_vs_imputed {
    path("*_bw.txt"), emit: badly_one_well_other 
    path("*_wm.txt"), emit: well_one_missing_other
    path("*_mm.txt"), emit: missing_both
+   path("*_bb.txt"), emit: badly_both
 
    publishDir "result/post_imputation_analysis/", pattern: "*_post_imputation_analysis.txt", mode: "copy"
    publishDir "result/bad_one_well_other/", pattern: "*_bw.txt", mode: "copy"
    publishDir "result/well_one_missing_other/", pattern: "*_wm.txt", mode: "copy"
    publishDir "result/missing_both/", pattern: "*_mm.txt", mode: "copy"
+   publishDir "result/badly_both/", pattern: "*_bb.txt", mode: "copy"
 
     """
     imputed_vs_imputed.py -fq ${first_post_imputation_file} -sq ${second_post_imputation_file}  -s ${sample_name}  -fr ${first_reference_name} -sr ${second_reference_name} 
@@ -43,6 +45,7 @@ process concat {
    path(badly_one_well_other)
    path(well_one_missing_other)
    path(missing_both)
+   path(badly_both)
    output:
    path("*.txt")
 
@@ -52,6 +55,7 @@ process concat {
     cat ${badly_one_well_ther} > all.badly_one_well_other.txt
     cat ${well_one_missing_other} > all.well_one_missing_other.txt
     cat ${missing_both} > all.missing_both.txt
+    cat ${badly_both} > all.badly_both.txt
     """
 }
 
@@ -62,6 +66,6 @@ workflow {
 
     combine_channel = first_reference_file.join(second_reference_file)
     files = imputed_vs_imputed(combine_channel)
-    concat(files.analysis_files, files.badly_one_well_other, files.well_one_missing_other, files.missing_both)
+    concat(files.analysis_files, files.badly_one_well_other, files.well_one_missing_other, files.missing_both, file.badly_both)
     
 }
