@@ -26,7 +26,7 @@ def compare(sample_name, first_reference_qt_filename, second_reference_qt_filena
     first_present_second_missing = 0
     first_concordant_second_discordant = 0
     first_discordant_second_discordant = 0
-    for chr in ['chr'+i for i in range(1, 23)]:
+    for chr in ['chr'+str(i) for i in range(1, 23)]:
         first_variants = read_variant(first_reference_qt_filename, chr)
         second_variants = read_variant(second_reference_qt_filename, chr)
         second_variants_buffer = []
