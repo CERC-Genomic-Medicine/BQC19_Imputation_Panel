@@ -34,9 +34,10 @@ def count_number_of_each_variant(path_to_all, out_path):
     df_concat = df_concat.sort_values(by=['count'],  ascending=False)
     with pysam.VariantFile(out_path, 'r') as union_set:
             union_set.write('##fileformat=VCFv4.1\n')
+            union_set.write('##INFO=<ID=VC,Number=1,Type=Float,Description="Count of each variant in subset samples">\n')
             union_set.write(f'##ref1={first_reference_name}\n')
             union_set.write(f'##ref2={second_reference_name}\n')
             union_set.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n')
             for index, row in df_concat.iterrows():
-                union_set.write(f'{row['CHROM']}\t{row['POS']}\t.\t{row['REF']}\t{row['ALT']}\t.\t.\n')
+                union_set.write(f'{row['CHROM']}\t{row['POS']}\t.\t{row['REF']}\t{row['ALT']}\t.\t.\tVC={row['count']}\n')
 
