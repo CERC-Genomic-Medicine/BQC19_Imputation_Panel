@@ -30,7 +30,7 @@ def compare(sample_name, first_reference_qt_filename, second_reference_qt_filena
         first_variants = read_variant(first_reference_qt_filename, chr)
         second_variants = read_variant(second_reference_qt_filename, chr)
         second_variants_buffer = []
-        with pysam.VariantFile(path_present_first_missing_second, 'r') as pfms, pysam.VariantFile(path_well_first_badly_second, 'r') as wfbs, pysam.VariantFile(path_badly_first_well_second, 'r') as bfws:
+        with pysam.VariantFile(path_present_first_missing_second, 'w') as pfms, pysam.VariantFile(path_well_first_badly_second, 'w') as wfbs, pysam.VariantFile(path_badly_first_well_second, 'w') as bfws:
             pfms.write('##fileformat=VCFv4.1\n')
             pfms.write(f'##ref1={first_reference_name}\n')
             pfms.write(f'##ref2={second_reference_name}\n')
