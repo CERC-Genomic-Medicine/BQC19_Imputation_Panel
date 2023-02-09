@@ -16,48 +16,21 @@ process imputed_vs_imputed {
    tuple val(sample_name), val(first_reference_name), path(first_post_imputation_file), val(second_reference_name), path(second_post_imputation_file)
 
    output:
-   path("*_post_imputation_analysis.txt"), emit: analysis_files 
-   path("*_bw.txt"), emit: badly_one_well_other 
-   path("*_wm.txt"), emit: well_one_missing_other
-   path("*_mm.txt"), emit: missing_both
-   path("*_bb.txt"), emit: badly_both
+   path("*_post_analysis.txt"), emit: analysis_files 
+   path("*_pm.vcf.gz"), emit: present_first_missing_other_files
+   path("*_wb.vcf.gz"), emit: well_first_bad_second_files
+   path("*_bw.vcf.gz"), emit: bad_first_well_second_files
 
-   publishDir "result/post_imputation_analysis/", pattern: "*_post_imputation_analysis.txt", mode: "copy"
-   publishDir "result/bad_one_well_other/", pattern: "*_bw.txt", mode: "copy"
-   publishDir "result/well_one_missing_other/", pattern: "*_wm.txt", mode: "copy"
-   publishDir "result/missing_both/", pattern: "*_mm.txt", mode: "copy"
-   publishDir "result/badly_both/", pattern: "*_bb.txt", mode: "copy"
+   publishDir "new_result/post_imputation_analysis/", pattern: "*_post_ianalysis.txt", mode: "copy"
+   publishDir "new_result/bad_first_well_other/", pattern: "*_bw.vcf", mode: "copy"
+   publishDir "new_result/well_first_bad_other/", pattern: "*_wb.vcf", mode: "copy"
+   publishDir "newresult/present_one_missing_other/", pattern: "*_pm.txt", mode: "copy"
 
     """
-    imputed_vs_imputed.py -fq ${first_post_imputation_file} -sq ${second_post_imputation_file}  -s ${sample_name}  -fr ${first_reference_name} -sr ${second_reference_name} 
+    imputed_vs_imputed2.py -fq ${first_post_imputation_file} -sq ${second_post_imputation_file}  -s ${sample_name}  -fr ${first_reference_name} -sr ${second_reference_name} 
     """
 }
 
-process concat {
-   cache "lenient"
-   cpus 1
-   memory "4GB"
-   time "00:30:00"
-   //scratch true
-
-   input:
-   path(analysis_files)
-   path(badly_one_well_other)
-   path(well_one_missing_other)
-   path(missing_both)
-   path(badly_both)
-   output:
-   path("*.txt")
-
-   publishDir "result/all_analysis_concat/", pattern: "*.txt", mode: "copy"
-    """
-    cat ${analysis_files} > all.post_imputation_analysis.txt
-    cat ${badly_one_well_ther} > all.badly_one_well_other.txt
-    cat ${well_one_missing_other} > all.well_one_missing_other.txt
-    cat ${missing_both} > all.missing_both.txt
-    cat ${badly_both} > all.badly_both.txt
-    """
-}
 
 workflow {
     first_reference_file = Channel.fromPath(params.post_imputation_files_first_reference).map{ file -> [file.name.toString().tokenize('_').get(1), file.name.toString().tokenize('_').get(0), file] }
@@ -65,7 +38,15 @@ workflow {
     second_reference_file = Channel.fromPath(params.post_imputation_files_second_reference).map{ file -> [file.name.toString().tokenize('_').get(1), file.name.toString().tokenize('_').get(0), file] }
 
     combine_channel = first_reference_file.join(second_reference_file)
-    files = imputed_vs_imputed(combine_channel)
-    concat(files.analysis_files, files.badly_one_well_other, files.well_one_missing_other, files.missing_both, file.badly_both)
-    
+    files = imputed_vs_imputed(combine_channel)    
 }
+
+/*
+
+   publishDir "result/post_imputation_analysis/", pattern: "*_post_imputation_analysis.txt", mode: "copy"
+   publishDir "result/bad_one_well_other/", pattern: "*_bw.txt", mode: "copy"
+   publishDir "result/well_one_missing_other/", pattern: "*_wm.txt", mode: "copy"
+   publishDir "result/missing_both/", pattern: "*_mm.txt", mode: "copy"
+   publishDir "result/badly_both/", pattern: "*_bb.txt", mode: "copy"
+
+*/
