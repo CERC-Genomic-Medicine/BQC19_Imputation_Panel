@@ -3,6 +3,7 @@
 import pysam
 import glob
 import argparse
+import gzip 
 
 argparser = argparse.ArgumentParser(description = 
  'Count the number of each variant per ancestry group.')
@@ -28,11 +29,11 @@ def load_vcf(self):
 def count_number_of_each_variant(path_to_all, out_path):
     list_df_samples = []
     for file in glob.glob(path_to_all):
-        df_sample = pd.read_csv(load_vcf)
+        df_sample = pd.DataFrame(load_vcf)
         list_df_samples.append(df_sample)
     df_concat = pd.concat(df_list).groupby(["CHROM", "POS", "REF", "ALT"]).size().reset_index(name = "count")
     df_concat = df_concat.sort_values(by=['count'],  ascending=False)
-    with pysam.VariantFile(out_path, 'r') as union_set:
+    with gzip.open(out_path, 'wt') as union_set:
             union_set.write('##fileformat=VCFv4.1\n')
             union_set.write('##INFO=<ID=VC,Number=1,Type=Float,Description="Count of each variant in subset samples">\n')
             union_set.write(f'##ref1={first_reference_name}\n')

@@ -87,9 +87,9 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
                             break    
                     if (imputed_truth == False):
                         if(truth_gt != 0):
-                            fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS\n").encode()) # variant is only present in truth files, non-zero genotype [(1, 0), (1, 1), (0, 1)].
-                        else:
-                            fw.write((f"{chrom}\t{imp_pos}\t{imp_ref}\t{imp_alt}\t{imp_gt}\t{truth_gt}\tWGS_0ALT\n").encode()) # variant is only present in truth files, zero genotype [(0, 0)].
+                            fw.write((f"{chrom}\t{truth_pos}\t{truth_ref}\t{truth_alt}\t{None}\t{truth_gt}\tWGS\n").encode()) # variant is only present in truth files, non-zero genotype [(1, 0), (1, 1), (0, 1)].
+                    else:
+                            fw.write((f"{chrom}\t{truth_pos}\t{truth_ref}\t{truth_alt}\t{None}\t{truth_gt}\tWGS_0ALT\n").encode()) # variant is only present in truth files, zero genotype [(0, 0)].
 
                 for imp_pos, imp_ref, imp_alt, imp_gt in imp_variants:
                         imp_variants_buffer.append((imp_pos, imp_ref, imp_alt, imp_gt))      

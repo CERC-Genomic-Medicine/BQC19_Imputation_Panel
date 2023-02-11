@@ -23,7 +23,7 @@ def count_present_in_one_missing_in_the_other(df_first, df_second, first_referen
     df_first = df_first.rename(columns={"type":"first type"})
     df_second = df_second.rename(columns={"type":"second type"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
-    df_merge = df_merge[((df_merge["first type"] == 'WGS_AND_REF_GT') | (df_merge["first type"] == 'WGS_AND_REF_LT') | (df_merge["first type"] == 'WGS_AND_REF_EQ')) & (df_merge["first type"] == 'WGS')]
+    df_merge = df_merge[((df_merge["first type"] == 'WGS_AND_REF_GT') | (df_merge["first type"] == 'WGS_AND_REF_LT') | (df_merge["first type"] == 'WGS_AND_REF_EQ')) & (df_merge["second type"] == 'WGS')]
     df_merge.to_csv(sample_name + "_present_" + first_reference_name + "_missing_" + second_reference_name + "_pm.txt", sep = "\t", index = None)
     return len(df_merge)
 
@@ -39,8 +39,8 @@ def count_well_imputed_in_one_missing_in_other(df_first, df_second, first_refere
     df_first = df_first.rename(columns={"type":"first type"})
     df_second = df_second.rename(columns={"type":"second type"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
-    df_merge = df_merge[(df_merge["first type"] == 'WGS') & (df_merge["second type"] == 'WGS_AND_REF_EQ')]
-    df_merge.to_csv(sample_name + "_well_" + first_reference_name + "_missing_" + second_reference_name +  "_wm.txt", sep = "\t", index = None)
+    df_merge = df_merge[(df_merge["second type"] == 'WGS') & (df_merge["first type"] == 'WGS_AND_REF_EQ')]
+    #df_merge.to_csv(sample_name + "_well_" + first_reference_name + "_missing_" + second_reference_name +  "_wm.txt", sep = "\t", index = None)
     return len(df_merge)
 
 def count_well_imputed_both(df_first, df_second):
@@ -55,7 +55,7 @@ def count_badly_imputed_both(df_first, df_second, first_reference_name, second_r
     df_second = df_second.rename(columns={"type":"second type"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
     df_merge = df_merge[((df_merge["first type"] == 'WGS_AND_REF_GT') | (df_merge["first type"] == 'WGS_AND_REF_LT')) & ((df_merge["second type"] == 'WGS_AND_REF_GT') | (df_merge["second type"] == 'WGS_AND_REF_LT'))]
-    df_merge.to_csv(sample_name + "_badly_" + first_reference_name + "_badly_" + second_reference_name  + "_bb.txt", sep = "\t", index = None)
+    #df_merge.to_csv(sample_name + "_badly_" + first_reference_name + "_badly_" + second_reference_name  + "_bb.txt", sep = "\t", index = None)
     return len(df_merge)
 
 def count_missing_both(df_first, df_second, first_reference_name, second_reference_name):
@@ -63,7 +63,7 @@ def count_missing_both(df_first, df_second, first_reference_name, second_referen
     df_second = df_second.rename(columns={"type":"second type"})
     df_merge = df_first.merge(df_second, on=["CHROM", "POS", "REF", "ALT"])
     df_merge = df_merge[(df_merge["first type"] == 'WGS') & (df_merge["second type"] == 'WGS')]
-    df_merge.to_csv(sample_name + "_missing_" + first_reference_name + "_missing_" + second_reference_name  + "_mm.txt", sep = "\t", index = None)
+    #df_merge.to_csv(sample_name + "_missing_" + first_reference_name + "_missing_" + second_reference_name  + "_mm.txt", sep = "\t", index = None)
     return len(df_merge)
 
 if __name__ == "__main__":
@@ -84,7 +84,8 @@ if __name__ == "__main__":
     cwfbs = count_badly_imputed_in_one_well_imputed_other(df_second, df_first, second_reference_name, first_reference_name)
     cwfms = count_well_imputed_in_one_missing_in_other(df_first, df_second, first_reference_name, second_reference_name)
     cwsmf = count_well_imputed_in_one_missing_in_other(df_second, df_first, second_reference_name, first_reference_name)
-    cpfms = count_present_in_one_missing_in_the_other(df_first, df_se)
+    cpfms = count_present_in_one_missing_in_the_other(df_first, df_second, first_reference_name, second_reference_name)
+    cpsmf = count_present_in_one_missing_in_the_other(df_second, df_first, second_reference_name, first_reference_name)
     cwfws = count_well_imputed_both(df_first, df_second)
     cbfbs = count_badly_imputed_both(df_first, df_second, first_reference_name, second_reference_name)
     cmfms = count_missing_both(df_first, df_second, first_reference_name, second_reference_name)
@@ -95,6 +96,8 @@ if __name__ == "__main__":
       "Disconcordant " + first_reference_name + " Concordant " + second_reference_name : [cbfws], \
       "Disconcordant " + second_reference_name + " Concordant " + first_reference_name: [cwfbs], \
       "Concordant " + first_reference_name + " Missing " + second_reference_name : [cwfms],\
+      "Present " + first_reference_name + " Missing " + second_reference_name : [cpfms],\
+      "Present " + second_reference_name + " Missing " + first_reference_name : [cpsmf],\
       "Concordant " + second_reference_name + " Missing " + first_reference_name : [cwsmf], "Concordant in both" : [cwfws], "Disconcordant in both" : [cbfbs], "Missing in both" : [cmfms]}
 
 
