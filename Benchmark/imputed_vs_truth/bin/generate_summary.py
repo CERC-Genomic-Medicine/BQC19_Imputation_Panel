@@ -12,7 +12,7 @@ argparser.add_argument('-s', '--sample_ID', metavar = 'name', dest = 'in_sample_
 argparser.add_argument('-o', '--output_file', metavar = 'file', dest = 'out_file_name', type = str, required = True, help = 'Output file which contains summary of numbers of different types of variant and corcondance results.')
 
 def calculates_stats(sample_ID, input_file, path_out):
-    input_dataframe = pd.read_csv(input_file, sep="\t", usecols = ['type']).drop_duplicates()
+    input_dataframe = pd.read_csv(input_file, sep="\t", usecols = ['type'])
     
     counts_type = input_dataframe.type.value_counts()
     list_index = list(counts_type.index)
