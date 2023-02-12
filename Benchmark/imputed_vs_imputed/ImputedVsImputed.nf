@@ -4,12 +4,12 @@
 * YEAR: 2022
 */
 process imputed_vs_imputed {
-   //errorStrategy "retry"
-   //maxRetries 3
+   errorStrategy "retry"
+   maxRetries 3
    cache "lenient"
    cpus 1
-   memory "64GB"
-   time "2h"
+   memory "128GB"
+   time "6h"
    //scratch true
 
    input:

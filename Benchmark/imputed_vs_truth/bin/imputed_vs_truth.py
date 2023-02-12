@@ -34,7 +34,7 @@ def compare(imputed_gt_filename, truth_gt_filename, sample_name, path_out):
         chroms = list(ivcf.header.contigs)
 
     with pysam.BGZFile(path_out, 'w')  as fw:
-        fw.write((f"CHROM\tPOS\tALT\tREF\tIMP_gt\tTRUTH_gt\ttype\n").encode())
+        fw.write((f"CHROM\tPOS\tREF\tALT\tIMP_gt\tTRUTH_gt\ttype\n").encode())
         for chrom in chroms:
                 imp_variants = read_variant(imputed_gt_filename, sample_name, chrom, None, None)
                 truth_variants = read_variant(truth_gt_filename, sample_name, chrom, None, None)
