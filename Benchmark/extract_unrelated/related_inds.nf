@@ -21,21 +21,18 @@ process concat {
     """
 }
 
-
 process remove_related{
     
      input:
      set file(all), file(all_index) from concat_ch
      
      output:
-     tuple file("*.king.cutoff.in.id"), file("*.king.cutoff.out.id") into plink_ch
+     tuple file("*.kin0"), file("*.log") into plink_ch
      
-     publishDir "related_ind/", pattern:"*.king.cutoff.out.id", mode: "copy"
-     publishDir "unrelated_ind/", pattern:"*.king.cutoff.in.id", mode: "copy"
-     
+     publishDir "results/", pattern:"*.kin0", mode: "copy"     
+     publishDir "results/", pattern:"*.log", mode: "copy"     
      """
-     ${params.plink} --make-king --vcf $all --king-cutoff 0.01105
+     ${params.plink} --make-king-table --vcf  $all --king-table-filter 0.0442
      """
-
-
 }
+
