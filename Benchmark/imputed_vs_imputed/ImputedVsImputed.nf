@@ -8,7 +8,7 @@ process imputed_vs_imputed {
    //maxRetries 3
    cache "lenient"
    cpus 1
-   memory "128GB"
+   memory "64GB"
    time "2h"
    //scratch true
 
