@@ -29,8 +29,6 @@ process rm_chr_name_ref{
     output:
     tuple val(chr_name), file("*.vcf.gz"), file("*.vcf.gz.tbi") into ref_comp_ch  mode flatten
     
-    publishDir "test/", pattern: "chr_name_conv.txt", mode: "copy"
-
     """
     echo "${chr_name}" > chroms1.txt
     chr=${chr_name}
