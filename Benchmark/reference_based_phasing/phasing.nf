@@ -67,7 +67,10 @@ process eagle_phasing{
     bcftools annotate --rename-chrs chr_name_conv.txt $study_vcf -Oz -o ${study_vcf.getBaseName()}.vcf.gz
     bcftools index --tbi ${study_vcf.getBaseName()}.vcf.gz
 
-    ${params.eagle} --vcfRef $ref_vcf --vcfTarget ${study_vcf.getBaseName()}.vcf.gz --geneticMapFile ${params.genetic_map} --outPrefix ${study_vcf.getBaseName()}.phased --allowRefAltSwap --vcfOutFormat z
+    bcftools annotate --rename-chrs chr_name_conv.txt $ref_vcf -Oz -o ${ref_vcf.getBaseName()}.vcf.gz
+    bcftools index --tbi ${ref_vcf.getBaseName()}.vcf.gz
+
+    ${params.eagle} --vcfRef ${ref_vcf.getBaseName()}.vcf.gz --vcfTarget ${study_vcf.getBaseName()}.vcf.gz --geneticMapFile ${params.genetic_map} --outPrefix ${study_vcf.getBaseName()}.phased --allowRefAltSwap --vcfOutFormat z
 
     paste chroms2.txt chroms1.txt > chr_name_conv.txt   
 
