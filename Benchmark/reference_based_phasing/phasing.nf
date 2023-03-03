@@ -89,7 +89,7 @@ workflow {
         study_ch = Channel.fromPath(params.study_vcf_path).map{ vcf -> [ vcf.name.toString().tokenize('.').contains('female'), vcf, vcf + ".tbi" ] }
 
         ref_vcfs = get_ref_chr_names(ref_ch)
-        study_vcfs = get_ref_chr_names(study_ch)
+        study_vcfs = get_study_chr_names(study_ch)
 
         phasing_ch = ref_vcfs.join(study_vcfs, by:[0, 1])
 
