@@ -52,7 +52,7 @@ process eagle_phasing{
     tuple val(chromosome), val(sex_id), file(ref_vcf), file(ref_vcf_index), file(study_vcf), file(study_vcf_index) 
         
     output:
-    file ("*.phased.final.vcf.gz")
+    file ("*.phased.final.vcf.gz*")
     publishDir "phased_vcfs/", pattern: "*.vcf.gz", mode: "copy"
 
     script:
@@ -81,6 +81,8 @@ process eagle_phasing{
     } else {
     """
     ${params.eagle} --vcfRef $ref_vcf --vcfTarget $study_vcf --geneticMapFile ${params.genetic_map} --outPrefix ${study_vcf.getBaseName()}.phased.final --allowRefAltSwap --vcfOutFormat z
+    bcftools index --tbi ${study_vcf.getBaseName()}.phased.final.vcf.gz
+
     """
     }
 
