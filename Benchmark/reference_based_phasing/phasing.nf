@@ -49,11 +49,11 @@ process eagle_phasing{
     time "5h"
     scratch true
     input:
-    tuple val(chromosome), val(sex_id), file(ref_vcf), file(ref_vcf_index), file(study_vcf), file(study_vcf_index) 
+    tuple val(chromosome), val(sex_id), path(ref_vcf), path(ref_vcf_index), path(study_vcf), path(study_vcf_index) 
         
     output:
-    file ("*.phased.final.vcf.gz*")
-    publishDir "phased_vcfs/", pattern: "*.vcf.gz", mode: "copy"
+    tuple path("*.phased.final.vcf.gz"), path("*.phased.final.vcf.gz.tbi")
+    publishDir "phased_vcfs/", pattern: "*.vcf.gz*", mode: "copy"
 
     script:
     if(params.chromosomeX == true){
