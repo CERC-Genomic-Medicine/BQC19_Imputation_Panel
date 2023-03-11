@@ -7,6 +7,10 @@
 
 process get_ref_chr_names{
     cache "lenient"
+    cpus 1
+    memory "4GB"
+    time "00:30:00"
+    scratch true
 
     input:
     tuple val(chrX), val(sex_id), path(vcf), path(vcf_index)
@@ -21,7 +25,11 @@ process get_ref_chr_names{
 
 process rm_chr_name_ref{
     cache "lenient"
-    
+    cpus 1
+    memory "4GB"
+    time "00:30:00"
+
+    scratch true
     input:
     tuple val(chr_name), val(chrX), val(sex_id), path(vcf), path(vcf_index)
 
@@ -53,7 +61,13 @@ process rm_chr_name_ref{
 }
 
 process convert_ref_vcf{
+    errorStrategy 'retry'
+    maxRetries 3
     cache "lenient"
+    cpus 4
+    memory "16GB"
+    time "3h"
+    scratch true
 
     input:
     tuple val(chr_name), val(chrX), val(sex_id), path(ref_vcf), path(ref_vcf_index)
@@ -64,12 +78,16 @@ process convert_ref_vcf{
     publishDir "minimac_m3vcfs/", pattern: "*.m3vcf.gz", mode: "copy"
 
     """
-    ${params.minimac3} --refHaps ${ref_vcf.getBaseName()}.ref.vcf.gz  --processReference --prefix ${ref_vcf.getBaseName()}
+    ${params.minimac3} --refHaps ${ref_vcf.getBaseName()}.ref.vcf.gz --cpus 4 --processReference --prefix ${ref_vcf.getBaseName()}
     """
 }
 
 process get_study_chr_names{
     cache "lenient"
+    cpus 1
+    memory "4GB"
+    time "00:30:00"
+    scratch true
 
     input:
     tuple val(chrX), val(sex_id), path(vcf), path(vcf_index)
@@ -84,7 +102,11 @@ process get_study_chr_names{
 
 process rm_chr_name_study{
     cache "lenient"
-    
+    cpus 1
+    memory "4GB"
+    time "00:30:00"
+    scratch true  
+
     input:
     tuple val(chr_name), val(chrX), val(sex_id), path(vcf), path(vcf_index)
 
@@ -116,8 +138,14 @@ process rm_chr_name_study{
 }
 
 process minimac_imputation{
+    errorStrategy 'retry'
+    maxRetries 3
     cache "lenient"
-    
+    cpus 4
+    memory "16GB"
+    time "4h"
+    scratch true  
+
     input:
     tuple val(chr_name), val(chrX), val(sex_id), file(ref_vcf), file(study_vcf), file(study_vcf_index)
      
@@ -126,10 +154,10 @@ process minimac_imputation{
 
     publishDir "imputed_vcfs/", pattern: "*.vcf.gz*", mode: "copy"
     publishDir "imputed_info/", pattern: "*.info", mode: "copy"
-    
+
     if (chrX == False) {
     """
-    ${params.minimac4} --refHaps $ref_vcf --haps $study_vcf --prefix ${study_vcf.getBaseName()} --meta --ignoreDuplicates
+    ${params.minimac4} --refHaps $ref_vcf --haps $study_vcf --cpus 4 --prefix ${study_vcf.getBaseName()} --meta --ignoreDuplicates
     echo "${chr_name}" > chroms1.txt
     chr=${chr_name}
     echo "\${chr:3}" > chroms2.txt
@@ -141,7 +169,7 @@ process minimac_imputation{
     """
     } else {
     """
-    ${params.minimac4} --refHaps $ref_vcf --haps $study_vcf --prefix ${study_vcf.getBaseName()} --meta --ignoreDuplicates
+    ${params.minimac4} --refHaps $ref_vcf --haps $study_vcf --cpus 4 --prefix ${study_vcf.getBaseName()} --meta --ignoreDuplicates
 
     echo "X" > chroms1.txt
     echo "chrX" > chroms2.txt

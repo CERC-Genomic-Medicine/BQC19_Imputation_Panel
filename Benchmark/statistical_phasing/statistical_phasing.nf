@@ -1,16 +1,23 @@
 #!/usr/bin/env nextflow
-
-
-chr_ch = Channel.fromPath(params.vcfs)
+/*
+* AUTHOR: Mohadese Sayahian Dehkordi, <mohadese.sayahiandehkordi@mail.mcgill.ca>
+* VERSION: 2.0
+* YEAR: 2023
+*/
 
 
 process beagle_statistical_phasing {
-
+    errorStrategy 'retry'
+    maxRetries 3
+    cache "lenient"
+    cpus 8
+    memory "32GB"
+    time "5h"
     input:
-    file chr from chr_ch
+    path(chr)
     
     output:
-    tuple file ("*.ref.vcf.gz"), file("*.ref.log") into ref_ch mode flatten
+    tuple path("*.ref.vcf.gz"), path("*.ref.log")
     
     publishDir "phased/ref_vcfs/", pattern: "*.vcf.gz", mode: "copy"
     publishDir "phased/ref_logs/", pattern: "*.ref.log", mode: "copy"
@@ -21,11 +28,15 @@ process beagle_statistical_phasing {
 }
 
 process remove_singletons {
+    cache "lenient"
+    cpus 1
+    memory "16GB"
+    time "5h"
     input:
-    set file(chr), file(log) from ref_ch
+    tuple path(chr), path(log)
     
     output:
-    tuple file("*.vcf.gz"), file("*.vcf.gz.tbi") into rm_singletons_ch
+    tuple path("*.vcf.gz"), path("*.vcf.gz.tbi")
     
     publishDir "phased/ref_withoutsingletons_vcfs/", pattern: "*.vcf.gz", mode: "copy"
     publishDir "phased/ref_withoutsingletons_vcfs/", pattern: "*.vcf.gz.tbi", mode: "copy"
@@ -34,4 +45,15 @@ process remove_singletons {
     bcftools view $chr -c 2 -Oz -o  ${chr.getBaseName()}.with_out_singletons.vcf.gz
     bcftools index --tbi ${chr.getBaseName()}.with_out_singletons.vcf.gz
     """
+}
+
+workflow {
+
+        stat_phasing_ch = Channel.fromPath(params.ref_vcf_path).map{ vcf -> [vcf, vcf + ".tbi" ] }
+
+        phased_vcfs = beagle_statistical_phasing(stat_phasing_ch)
+
+        remove_singletons(phased_vcfs)
+
+
 }
