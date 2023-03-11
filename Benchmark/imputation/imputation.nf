@@ -51,7 +51,7 @@ process rm_chr_name_ref{
     } else {
     """
     echo "${chr_name}" > chroms1.txt
-    echo "\$X" > chroms2.txt
+    echo "X" > chroms2.txt
 
     paste chroms1.txt chroms2.txt > chr_name_conv.txt  
 
@@ -65,7 +65,7 @@ process convert_ref_vcf{
     errorStrategy 'retry'
     maxRetries 3
     cache "lenient"
-    cpus 4
+    cpus 1
     memory "16GB"
     time "3h"
     scratch true
@@ -79,7 +79,7 @@ process convert_ref_vcf{
     publishDir "minimac_m3vcfs/", pattern: "*.m3vcf.gz", mode: "copy"
 
     """
-    ${params.minimac3} --refHaps ${ref_vcf.getBaseName()}.ref.vcf.gz --cpus 4 --processReference --prefix ${ref_vcf.getBaseName()}
+    ${params.minimac3} --refHaps $ref_vcf --processReference --prefix ${ref_vcf.getBaseName()}
     """
 }
 
@@ -129,7 +129,7 @@ process rm_chr_name_study{
     } else {
     """
     echo "${chr_name}" > chroms1.txt
-    echo "\$X" > chroms2.txt
+    echo "X" > chroms2.txt
 
     paste chroms1.txt chroms2.txt > chr_name_conv.txt  
 
