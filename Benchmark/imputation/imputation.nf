@@ -36,6 +36,7 @@ process rm_chr_name_ref{
     output:
     tuple val(chr_name), val(chrX), val(sex_id), path("*.vcf.gz"), path("*.vcf.gz.tbi")
     
+    script:
     if (chrX == False) {
     """
     echo "${chr_name}" > chroms1.txt
@@ -113,6 +114,7 @@ process rm_chr_name_study{
     output:
     tuple val(chr_name), val(chrX), val(sex_id), path("*.vcf.gz"), path("*.vcf.gz.tbi")
     
+    script:
     if (chrX == False) {
     """
     echo "${chr_name}" > chroms1.txt
@@ -155,6 +157,7 @@ process minimac_imputation{
     publishDir "imputed_vcfs/", pattern: "*.vcf.gz*", mode: "copy"
     publishDir "imputed_info/", pattern: "*.info", mode: "copy"
 
+    script:
     if (chrX == False) {
     """
     ${params.minimac4} --refHaps $ref_vcf --haps $study_vcf --cpus 4 --prefix ${study_vcf.getBaseName()} --meta --ignoreDuplicates
