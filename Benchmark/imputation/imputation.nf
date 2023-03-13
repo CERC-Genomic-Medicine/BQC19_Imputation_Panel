@@ -143,7 +143,7 @@ process minimac_imputation{
     errorStrategy 'retry'
     maxRetries 3
     cache "lenient"
-    cpus 4
+    cpus 1
     memory "16GB"
     time "4h"
     scratch true  
@@ -160,7 +160,7 @@ process minimac_imputation{
     script:
     if (chrX == false) {
     """
-    ${params.minimac4} --refHaps $ref_vcf --haps $study_vcf --cpus 4 --prefix ${study_vcf.getBaseName()} --meta --ignoreDuplicates
+    ${params.minimac4} --refHaps $ref_vcf --haps $study_vcf  --prefix ${study_vcf.getBaseName()} --meta --ignoreDuplicates
     echo "${chr_name}" > chroms1.txt
     chr=${chr_name}
     echo "\${chr:3}" > chroms2.txt
@@ -175,15 +175,15 @@ process minimac_imputation{
     """
     } else {
     """
-    ${params.minimac4} --refHaps $ref_vcf --haps $study_vcf --cpus 4 --prefix ${study_vcf.getBaseName()} --meta --ignoreDuplicates
+    ${params.minimac4} --refHaps $ref_vcf --haps $study_vcf --prefix ${study_vcf.getBaseName()} --meta --ignoreDuplicates
 
-    echo "X" > chroms1.txt
-    echo "chrX" > chroms2.txt
+    echo "chrX" > chroms1.txt
+    echo "X" > chroms2.txt
 
     paste chroms2.txt chroms1.txt > chr_name_conv.txt  
 
     bcftools annotate --rename-chrs chr_name_conv.txt ${study_vcf.getBaseName()}.dose.vcf.gz -Oz -o ${study_vcf.getBaseName()}.imp.dose.vcf.gz
-    bcftools index --tbi ${study_vcf.getBaseName()}.imp.vcf.gz
+    bcftools index --tbi ${study_vcf.getBaseName()}.imp.dose.vcf.gz
 
     bcftools annotate --rename-chrs chr_name_conv.txt ${study_vcf.getBaseName()}.empiricalDose.vcf.gz -Oz -o ${study_vcf.getBaseName()}.imp.empiricalDose.vcf.gz
     bcftools index --tbi ${study_vcf.getBaseName()}.imp.empiricalDose.vcf.gz
