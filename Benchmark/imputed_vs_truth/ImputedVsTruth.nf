@@ -8,7 +8,7 @@ process concat_imputed {
    cache "lenient"
    cpus 1
    memory "32GB"
-   time "04:00:00"
+   time "00:30:00"
    scratch true
    input:
    path(vcfs)
@@ -26,7 +26,7 @@ process concat_truth {
    cache "lenient"
    cpus 1
    memory "32GB"
-   time "04:00:00"
+   time "00:30:00"
    scratch true
    input:
    path(vcfs)
@@ -61,7 +61,7 @@ process imputed_vs_truth {
    cache "lenient"
    cpus 1
    memory "16GB"
-   time "07:00:00"
+   time "02:00:00"
    scratch true
    input:
    tuple path(imputed_vcf), path(imputed_vcf_index)

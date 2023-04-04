@@ -14,7 +14,7 @@ process beagle_statistical_phasing {
     memory "32GB"
     time "5h"
     input:
-    path(chr)
+    tuple path(chr), path(index)
     
     output:
     tuple path("*.ref.vcf.gz"), path("*.ref.log")

@@ -168,7 +168,7 @@ process minimac_imputation{
     paste chroms2.txt chroms1.txt > chr_name_conv.txt  
 
     bcftools annotate --rename-chrs chr_name_conv.txt ${study_vcf.getBaseName()}.dose.vcf.gz -Oz -o ${study_vcf.getBaseName()}.imp.dose.vcf.gz
-    bcftools index --tbi ${study_vcf.getBaseName()}.imp.vcf.gz
+    bcftools index --tbi ${study_vcf.getBaseName()}.imp.dose.vcf.gz
 
     bcftools annotate --rename-chrs chr_name_conv.txt ${study_vcf.getBaseName()}.empiricalDose.vcf.gz -Oz -o ${study_vcf.getBaseName()}.imp.empiricalDose.vcf.gz
     bcftools index --tbi ${study_vcf.getBaseName()}.imp.empiricalDose.vcf.gz
