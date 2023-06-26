@@ -29,7 +29,7 @@ The pipeline expects the following input data:
 
 The pipeline generates the following outputs:
 
-- Imputed genotypes: The study samples' genotypes are imputed separately for autosomal chromosomes and chromosome X using Minimac4.
+- Imputed genotypes as well as empirical dosage files: The study samples' genotypes are imputed separately for autosomal chromosomes and chromosome X using Minimac4 in VCF format.
 
 ## Running the Pipeline
 
