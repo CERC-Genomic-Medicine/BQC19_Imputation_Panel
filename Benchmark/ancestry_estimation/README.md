@@ -38,8 +38,8 @@ sbatch --account="name of the account" --time=48:00:00 --mem=4G -J coverage --wr
 Ensure you have the following dependencies installed:
 
 - [Nextflow](https://www.nextflow.io/)
-- [HDGP+1KG dataset](https://gnomad.broadinstitute.org/news/2020-10-gnomad-v3-1-new-content-methods-annotations-and-data-availability/) (https://gnomad.broadinstitute.org/news/2020-10-gnomad-v3-1-new-content-methods-annotations-and-data-availability/)
-- [TRACE algorithm](http://csg.sph.umich.edu/chaolong/LASER/) (http://csg.sph.umich.edu/chaolong/LASER/)
+- [HDGP+1KG dataset](https://gnomad.broadinstitute.org/news/2020-10-gnomad-v3-1-new-content-methods-annotations-and-data-availability/) 
+- [TRACE algorithm](http://csg.sph.umich.edu/chaolong/LASER/)
 - Python pakages: pandas, sklearn, matplotlib, numpy
 
 
