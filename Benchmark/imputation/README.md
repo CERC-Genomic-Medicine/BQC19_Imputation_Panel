@@ -46,6 +46,6 @@ sbatch --account="name of the account" --time=48:00:00 --mem=4G -J imputation --
 
 Make sure you have the following dependencies installed:
 
-- Minimac3 (provide download link)
-- Minimac4 (provide download link)
+- Minimac3 
+- Minimac4 
 - Nextflow
