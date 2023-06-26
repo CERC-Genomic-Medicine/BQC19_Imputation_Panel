@@ -48,7 +48,7 @@ process eagle_phasing{
     cache "lenient"
     cpus 4
     memory "16GB"
-    time "5h"
+    time "2h"
     scratch true
     input:
     tuple val(chromosome), val(sex_id), path(ref_vcf), path(ref_vcf_index), path(study_vcf), path(study_vcf_index) 

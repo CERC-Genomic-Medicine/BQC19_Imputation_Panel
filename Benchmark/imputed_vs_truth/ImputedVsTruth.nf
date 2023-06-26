@@ -7,8 +7,8 @@
 process concat_imputed {
    cache "lenient"
    cpus 1
-   memory "32GB"
-   time "00:30:00"
+   memory "64GB"
+   time "04:00:00"
    scratch true
    input:
    path(vcfs)
@@ -25,8 +25,8 @@ process concat_imputed {
 process concat_truth {
    cache "lenient"
    cpus 1
-   memory "32GB"
-   time "00:30:00"
+   memory "64GB"
+   time "04:00:00"
    scratch true
    input:
    path(vcfs)
@@ -61,7 +61,7 @@ process imputed_vs_truth {
    cache "lenient"
    cpus 1
    memory "16GB"
-   time "02:00:00"
+   time "07:00:00"
    scratch true
    input:
    tuple path(imputed_vcf), path(imputed_vcf_index)
@@ -123,7 +123,7 @@ workflow {
    imputed_files = Channel.fromPath(params.imputed_files)
    truth_files = Channel.fromPath(params.truth_files)
 
-   imputed_sample_names = get_imputed_sample_names(Channel.fromPath(params.imputed_files).first().map{ vcf -> [vcf, vcf + ".tbi"] }).flatMap{ it -> it.split("\n")}.flatMap{ it -> it.split("\t")}
+   imputed_sample_names = get_imputed_sample_names(Channel.fromPath(params.truth_files).first().map{ vcf -> [vcf, vcf + ".tbi"] }).flatMap{ it -> it.split("\n")}.flatMap{ it -> it.split("\t")}
    imputed_vcf = concat_imputed(imputed_files.collect())
    truth_vcf = concat_truth(truth_files.collect())
    quality_files = imputed_vs_truth(imputed_vcf, truth_vcf, imputed_sample_names)

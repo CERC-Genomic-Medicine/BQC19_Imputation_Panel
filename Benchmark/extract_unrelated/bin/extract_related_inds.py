@@ -2,7 +2,7 @@ import pandas as pd
 
 ### Should be modified:)) 
 ### Test example
-related_inds = pd.read_csv("/home/sayahian/scratch/BQC19_PREP/plink2.kin0", sep = "\t")
+related_inds = pd.read_csv("path to/plink2.kin0", sep = "\t")
 IID1 = list(related_inds['#IID1'])
 IID2 = list(related_inds['IID2'])
 IID = IID1 + IID2

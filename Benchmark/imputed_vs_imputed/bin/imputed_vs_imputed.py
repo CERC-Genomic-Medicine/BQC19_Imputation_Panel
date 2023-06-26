@@ -84,9 +84,9 @@ if __name__ == "__main__":
     second_reference_name = args.in_second_reference_name
     
 
-    df_first = pd.read_csv(path_first, sep="\t", usecols=['CHROM', 'POS', 'ALT', 'REF','type'])
-    df_second = pd.read_csv(path_second, sep="\t", usecols=['CHROM', 'POS', 'ALT', 'REF', 'type'])
-
+    df_first = pd.read_csv(path_first, sep="\t", usecols=['CHROM', 'POS', 'REF', 'ALT','type'])
+    df_second = pd.read_csv(path_second, sep="\t", usecols=['CHROM', 'POS', 'REF', 'ALT', 'type'])
+    df_first['CHROM'] = ['chr'+str(i) for i in list(df_first['CHROM'])]
 
     cshv = count_shared_variants(df_first, df_second)
     cbfws = count_badly_imputed_in_one_well_imputed_other(df_first, df_second, first_reference_name, second_reference_name)

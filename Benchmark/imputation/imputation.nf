@@ -62,12 +62,12 @@ process rm_chr_name_ref{
 }
 
 process convert_ref_vcf{
-    errorStrategy 'retry'
-    maxRetries 3
+    //errorStrategy 'retry'
+    //maxRetries 3
     cache "lenient"
-    cpus 1
-    memory "16GB"
-    time "3h"
+    cpus 4
+    memory "32GB"
+    time "5h"
     scratch true
 
     input:
@@ -79,7 +79,7 @@ process convert_ref_vcf{
     publishDir "minimac_m3vcfs/", pattern: "*.m3vcf.gz", mode: "copy"
 
     """
-    ${params.minimac3} --refHaps $ref_vcf --processReference --prefix ${ref_vcf.getBaseName()}
+    ${params.minimac3} --refHaps $ref_vcf --cpus 4 --processReference --prefix ${ref_vcf.getBaseName()}
     """
 }
 
@@ -140,12 +140,12 @@ process rm_chr_name_study{
 }
 
 process minimac_imputation{
-    errorStrategy 'retry'
-    maxRetries 3
+    //errorStrategy 'retry'
+    //maxRetries 3
     cache "lenient"
-    cpus 1
-    memory "16GB"
-    time "4h"
+    cpus 4
+    memory "32GB"
+    time "5h"
     scratch true  
 
     input:
@@ -175,7 +175,7 @@ process minimac_imputation{
     """
     } else {
     """
-    ${params.minimac4} --refHaps $ref_vcf --haps $study_vcf --prefix ${study_vcf.getBaseName()} --meta --ignoreDuplicates
+    ${params.minimac4} --refHaps $ref_vcf --haps $study_vcf --cpus 4 --prefix ${study_vcf.getBaseName()} --meta --ignoreDuplicates
 
     echo "chrX" > chroms1.txt
     echo "X" > chroms2.txt

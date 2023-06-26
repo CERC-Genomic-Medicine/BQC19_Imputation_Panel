@@ -8,8 +8,8 @@ process imputed_vs_imputed {
    //maxRetries 3
    cache "lenient"
    cpus 1
-   memory "64GB"
-   time "2h"
+   memory "128GB"
+   time "3h"
    //scratch true
 
    input:
@@ -50,13 +50,3 @@ workflow {
     combine_channel = first_reference_file.join(second_reference_file)
     files = imputed_vs_imputed(combine_channel)    
 }
-
-/*
-
-   publishDir "result/post_imputation_analysis/", pattern: "*_post_imputation_analysis.txt", mode: "copy"
-   publishDir "result/bad_one_well_other/", pattern: "*_bw.txt", mode: "copy"
-   publishDir "result/well_one_missing_other/", pattern: "*_wm.txt", mode: "copy"
-   publishDir "result/missing_both/", pattern: "*_mm.txt", mode: "copy"
-   publishDir "result/badly_both/", pattern: "*_bb.txt", mode: "copy"
-
-*/
