@@ -16,7 +16,7 @@ The pipeline follows these main steps:
 
 3. **Chromosome X Imputation:** Perform genotype imputation separately for chromosome X using Minimac3 or Minimac4 software. Imputation is performed for males and females seperatly in non-pseudoautosomal regions by accounting for the differences in this region.
 
-4. **Output Generation:** The pipeline generates imputed genotype data in VCF format, providing a valuable resource for downstream analyses such as association studies or population genetics.
+4. **Output Generation:** The pipeline generates imputed genotype data in VCF format, as well as empirical dosage files in VCF format, providing a valuable resource for downstream analyses such as association studies or population genetics.
 
 ## Input Data
 
@@ -37,7 +37,8 @@ To run the pipeline, follow the steps below:
 
 1. Ensure you have the required dependencies installed, including Minimac3 and Minimac4 and Nextflow.
 2. Prepare your study samples and reference panel in the appropriate format.
-3. Execute the pipeline using the provided command:
+3. modify nextflow.config file based on your need.
+4. Execute the pipeline using the provided command:
 ```bash
 sbatch --account="name of the account" --time=48:00:00 --mem=4G -J imputation --wrap="nextflow run /path/to/imputation.nf" -o imputation.slurm.log
 ```

@@ -37,7 +37,8 @@ To run the pipeline, follow the steps below:
 
 1. Ensure you have the required dependencies installed, including EAGLE 2, bcftools, tabix, and Nextflow.
 2. Prepare your study samples and reference panel in the appropriate format.
-3. Execute the pipeline using the provided command:
+3. modify nextflow.config file based on your need.
+4. Execute the pipeline using the provided command:
 
 ```bash
 sbatch --account="name of the account" --time=48:00:00 --mem=4G -J prephasing --wrap="nextflow run /path/to/phasing.nf" -o phasing.slurm.log

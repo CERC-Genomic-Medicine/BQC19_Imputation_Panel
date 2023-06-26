@@ -24,7 +24,8 @@ To run the pipeline, please follow these instructions:
 
 1. Ensure you have the required dependencies installed, including Beagle 5.4 software.
 2. Prepare the input data in the appropriate format.
-3. Execute the pipeline using the following command:
+3. modify nextflow.config file based on your need.
+4. Execute the pipeline using the following command:
 
 ```bash
 sbatch --account="name of the account" --time=48:00:00 --mem=4G -J phasing --wrap="nextflow run /path/to/statisticalphasing.nf" -o phasing.slurm.log
