@@ -38,4 +38,4 @@ Ensure you have the following dependencies installed:
 - [bcftools](https://samtools.github.io/bcftools/howtos/install.html)
 
 Acknowledgements
-We would like to acknowledge the developers of BEAGLE software for providing the tools necessary for phasing and imputation. Their contribution is greatly appreciated.
+We would like to acknowledge the developers of BEAGLE software for providing the tools necessary for reference-free phasing. Their contribution is greatly appreciated.

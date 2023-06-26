@@ -46,6 +46,11 @@ sbatch --account="name of the account" --time=48:00:00 --mem=4G -J imputation --
 
 Make sure you have the following dependencies installed:
 
-- Minimac3 
-- Minimac4 
-- Nextflow
+- [Minimac3](https://genome.sph.umich.edu/wiki/Minimac4)
+- [Minimac4](https://genome.sph.umich.edu/wiki/Minimac4)
+- [Nextflow](https://www.nextflow.io/)
+- [bcftools](https://samtools.github.io/bcftools/howtos/install.html)
+- [tabix](https://howtoinstall.co/en/tabix)
+
+Acknowledgements
+We would like to acknowledge the developers of Minimac software for providing the tools necessary for imputation. Their contribution is greatly appreciated.

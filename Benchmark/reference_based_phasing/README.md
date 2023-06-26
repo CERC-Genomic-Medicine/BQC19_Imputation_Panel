@@ -53,4 +53,4 @@ Make sure you have the following dependencies installed:
 
 
 Acknowledgements
-We would like to acknowledge the developers of EAGLE software for providing the tools necessary for phasing and imputation. Their contribution is greatly appreciated.
+We would like to acknowledge the developers of EAGLE software for providing the tools necessary for pre-phasing. Their contribution is greatly appreciated.
