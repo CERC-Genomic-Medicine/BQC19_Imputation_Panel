@@ -37,14 +37,14 @@ study_PC['random_forest_predicted_ancestry'] = random_forest_clf.predict(study_P
 rf_CVSs_mean = np.mean(cross_val_score(random_forest_clf, train_features, train_labels, cv=5))
 rf_accuracy = metrics.accuracy_score(test_labels, test_pred)
 # confusion matrix
-cm = confusion_matrix(test_labels, test_pred, labels=random_forest_clf.classes_)
-disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=random_forest_clf.classes_)
+cm = metrics.confusion_matrix(test_labels, test_pred, labels=random_forest_clf.classes_)
+disp = metrics.ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=random_forest_clf.classes_)
 disp.plot()
 plt.savefig('./confusion_matrix_random_forest.png', bbox_inches='tight')
 plt.clf()
 
 #k-nearest neighbours classifier
-knn_clf = KNeighborsClassifier(n_neighbors=10, n_estimators=1000, random_state=42)
+knn_clf = KNeighborsClassifier(n_neighbors=10)
 knn_clf.fit(train_features, train_labels)
 test_pred=knn_clf.predict(test_features)
 
@@ -54,8 +54,8 @@ knn_CVSs_mean = np.mean(cross_val_score(knn_clf, train_features, train_labels, c
 knn_accuracy = metrics.accuracy_score(test_labels, test_pred)
 
 # confusion matrix
-cm = confusion_matrix(test_labels, test_pred, labels=knn_clf.classes_)
-disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=knn_clf.classes_)
+cm = metrics.confusion_matrix(test_labels, test_pred, labels=knn_clf.classes_)
+disp = metrics.ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=knn_clf.classes_)
 disp.plot()
 plt.savefig('./confusion_matrix_rknn.png', bbox_inches='tight')
 plt.clf()
