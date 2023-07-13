@@ -193,7 +193,8 @@ process minimac_imputation{
 workflow {
 
         ref_ch = Channel.fromPath(params.ref_vcf_path).map{ vcf -> [ vcf.name.toString().tokenize('.').contains('chrX'), vcf.name.toString().tokenize('.').contains('female'), vcf, vcf + ".tbi" ] }
-        study_ch = Channel.fromPath(params.study_vcf_path).map{ vcf -> [ vcf.name.toString().tokenize('.').contains('chrX'), vcf.name.toString().tokenize('.').contains('female'), vcf, vcf + ".tbi" ] }
+        study_ch = Channel.fromPath(params.study_vcf_path).map{ vcf -> [ vcf.name.toString().tokenize('.').contains('chrX_array'), vcf.name.toString().tokenize('.').contains('female'), vcf, vcf + ".tbi" ] }
+
 
         ref_vcfs = get_ref_chr_names(ref_ch)
         study_vcfs = get_study_chr_names(study_ch)
