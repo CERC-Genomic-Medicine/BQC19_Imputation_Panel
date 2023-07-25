@@ -58,7 +58,7 @@ process get_chunks {
     start_bp=`bcftools view -HG ${vcf} | head -n1 | cut -f2`
 	stop_bp=`bcftools index -s ${vcf} | cut -f2`
        
-       	extend=0
+    extend=0
 	for i in `seq \${start_bp} ${params.window} \${stop_bp}`; do
 		if [ \${extend} -eq 0 ]; then
 			chunk_start=\$((${params.flank} > i ? 0 : i - ${params.flank}))
