@@ -46,12 +46,13 @@ process get_chunks {
 	cache "lenient"
 	cpus 1
 	memory "4GB"
+    time "00:30:00"
 
 	input:
 	tuple val(chromosome), val(sex_id), path(vcf), path(vcf_index)
 
     output:
-    tuple val(chromosome), val(sex_id), path("*.chunk"), path(vcf), path(vcf_index)
+    tuple path("*.chunk"), val(chromosome), val(sex_id), path(vcf), path(vcf_index)
 
 	"""
     chrom=`bcftools index -s ${vcf} | cut -f1`
@@ -110,7 +111,6 @@ process eagle_phasing{
     bcftools index --tbi ${ref_vcf.getBaseName()}.vcf.gz
 
 
-
     chrom=`head -n1 ${chunk} | cut -f1`
     start_bp=`head -n1 ${chunk} | cut -f2`
 	stop_bp=`head -n1 ${chunk} | cut -f3`
@@ -129,7 +129,7 @@ process eagle_phasing{
     chrom=`head -n1 ${chunk} | cut -f1`
     start_bp=`head -n1 ${chunk} | cut -f2`
 	stop_bp=`head -n1 ${chunk} | cut -f3`
-    bcftools -r \${chrom}:\${start_bp}-\${stop_bp} ${study_vcf.getBaseName()}.vcf.gz -Oz -o \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz 
+    bcftools view -r \${chrom}:\${start_bp}-\${stop_bp} ${study_vcf.getBaseName()}.vcf.gz -Oz -o \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz 
     bcftools index --tbi \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz
     ${params.eagle} --vcfRef ${ref_vcf.getBaseName()}.vcf.gz --vcfTarget \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz --numThreads 4 --geneticMapFile ${params.genetic_map} --outPrefix \${chrom}_\${start_bp}_\${stop_bp}.phased.final --bpStart 1 --bpEnd 25000000 --allowRefAltSwap --vcfOutFormat z
     bcftools index --tbi \${chrom}_\${start_bp}_\${stop_bp}.phased.final.vcf.gz
@@ -161,14 +161,14 @@ process ligate {
 }
 
 workflow {
-
         ref_ch = Channel.fromPath(params.ref_vcf_path).map{ vcf -> [ vcf.name.toString().tokenize('.').contains('female'), vcf, vcf + ".tbi" ] }
         study_ch = Channel.fromPath(params.study_vcf_path).map{ vcf -> [ vcf.name.toString().tokenize('.').contains('female'), vcf, vcf + ".tbi" ] }
 
         ref_vcfs = get_ref_chr_names(ref_ch)
         study_vcfs = get_study_chr_names(study_ch)
         study_chunks = get_chunks(study_vcfs)
-        phasing_ch = ref_vcfs.join(study_chunks, by:[0, 1])
+        study = study_chunks.map{study_chunk, chromosome, sex_id, vcf, vcf_index -> for(i in study_chunk){println([chromosome, sex_id, i, vcf, vcf_index])}}
+        phasing_ch = ref_vcfs.join(study, by:[0, 1])
         phased_chunks = eagle_phasing(phasing_ch)
         ligate(phased_chunks)
 
