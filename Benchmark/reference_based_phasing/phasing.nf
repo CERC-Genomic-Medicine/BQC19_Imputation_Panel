@@ -6,6 +6,7 @@
 * YEAR: 2023
 */
 
+
 process get_ref_chr_names{
     cache "lenient"
     cpus 1
@@ -114,9 +115,10 @@ process eagle_phasing{
     chrom=`head -n1 ${chunk} | cut -f1`
     start_bp=`head -n1 ${chunk} | cut -f2`
 	stop_bp=`head -n1 ${chunk} | cut -f3`
+    stop_w_overlap=\${stop_bp}+5000000
     bcftools -r \${chrom}:\${start_bp}-\${stop_bp} ${study_vcf.getBaseName()}.vcf.gz -Oz -o \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz 
     bcftools index --tbi \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz
-    ${params.eagle} --vcfRef ${ref_vcf.getBaseName()}.vcf.gz --vcfTarget \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz --numThreads 4 --geneticMapFile ${params.genetic_map} --outPrefix \${chrom}_\${start_bp}_\${stop_bp}.phased --bpStart 1 --bpEnd 25000000 --allowRefAltSwap --vcfOutFormat z
+    ${params.eagle} --vcfRef ${ref_vcf.getBaseName()}.vcf.gz --vcfTarget \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz --numThreads 4 --geneticMapFile ${params.genetic_map} --outPrefix \${chrom}_\${start_bp}_\${stop_bp}.phased --bpStart \${start_bp} --bpEnd \${stop_w_overlap} --allowRefAltSwap --vcfOutFormat z
 
     paste chroms2.txt chroms1.txt > chr_name_conv.txt   
 
@@ -132,7 +134,7 @@ process eagle_phasing{
     stop_w_overlap=\${stop_bp}+5000000
     bcftools view -r \${chrom}:\${start_bp}-\${stop_bp} ${study_vcf.getBaseName()}.vcf.gz -Oz -o \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz 
     bcftools index --tbi \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz
-    ${params.eagle} --vcfRef ${ref_vcf.getBaseName()}.vcf.gz --vcfTarget \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz --numThreads 4 --geneticMapFile ${params.genetic_map} --outPrefix \${chrom}_\${start_bp}_\${stop_bp}.phased.final --bpStart \${start_bp} --bpEnd stop_w_overlap --allowRefAltSwap --vcfOutFormat z
+    ${params.eagle} --vcfRef ${ref_vcf.getBaseName()}.vcf.gz --vcfTarget \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz --numThreads 4 --geneticMapFile ${params.genetic_map} --outPrefix \${chrom}_\${start_bp}_\${stop_bp}.phased.final --bpStart \${start_bp} --bpEnd \${stop_w_overlap} --allowRefAltSwap --vcfOutFormat z
     bcftools index --tbi \${chrom}_\${start_bp}_\${stop_bp}.phased.final.vcf.gz
     """
     }
@@ -168,9 +170,10 @@ workflow {
         ref_vcfs = get_ref_chr_names(ref_ch)
         study_vcfs = get_study_chr_names(study_ch)
         study_chunks = get_chunks(study_vcfs)
-        study = study_chunks.map{study_chunk, chromosome, sex_id, vcf, vcf_index -> for(i in study_chunk){println([chromosome, sex_id, i, vcf, vcf_index])}}
-        phasing_ch = ref_vcfs.join(study, by:[0, 1])
+        flatten_chunks = study_chunks.flatMap { chunks, chrom, sex, vcf, vcf_index ->
+        chunks.collect { chunk -> [chrom, sex, chunk, vcf, vcf_index] }
+         }        
+        phasing_ch = ref_vcfs.join(flatten_chunks, by:[0, 1])
         phased_chunks = eagle_phasing(phasing_ch)
         ligate(phased_chunks)
-
 }
