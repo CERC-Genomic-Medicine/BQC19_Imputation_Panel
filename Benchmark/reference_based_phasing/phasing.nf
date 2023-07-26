@@ -115,7 +115,7 @@ process eagle_phasing{
     chrom=`head -n1 ${chunk} | cut -f1`
     start_bp=`head -n1 ${chunk} | cut -f2`
 	stop_bp=`head -n1 ${chunk} | cut -f3`
-    stop_w_overlap=\${stop_bp}+5000000
+    stop_w_overlap=\$((stop_bp+5000000))
     bcftools -r \${chrom}:\${start_bp}-\${stop_bp} ${study_vcf.getBaseName()}.vcf.gz -Oz -o \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz 
     bcftools index --tbi \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz
     ${params.eagle} --vcfRef ${ref_vcf.getBaseName()}.vcf.gz --vcfTarget \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz --numThreads 4 --geneticMapFile ${params.genetic_map} --outPrefix \${chrom}_\${start_bp}_\${stop_bp}.phased --bpStart \${start_bp} --bpEnd \${stop_w_overlap} --allowRefAltSwap --vcfOutFormat z
@@ -131,7 +131,7 @@ process eagle_phasing{
     chrom=`head -n1 ${chunk} | cut -f1`
     start_bp=`head -n1 ${chunk} | cut -f2`
 	stop_bp=`head -n1 ${chunk} | cut -f3`
-    stop_w_overlap=\${stop_bp}+5000000
+    stop_w_overlap=\$((stop_bp + 5000000))
     bcftools view -r \${chrom}:\${start_bp}-\${stop_bp} ${study_vcf.getBaseName()}.vcf.gz -Oz -o \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz 
     bcftools index --tbi \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz
     ${params.eagle} --vcfRef ${ref_vcf.getBaseName()}.vcf.gz --vcfTarget \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz --numThreads 4 --geneticMapFile ${params.genetic_map} --outPrefix \${chrom}_\${start_bp}_\${stop_bp}.phased.final --bpStart \${start_bp} --bpEnd \${stop_w_overlap} --allowRefAltSwap --vcfOutFormat z
