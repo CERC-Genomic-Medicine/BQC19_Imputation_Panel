@@ -170,7 +170,10 @@ workflow {
         ref_vcfs = get_ref_chr_names(ref_ch)
         study_vcfs = get_study_chr_names(study_ch)
         study_chunks = get_chunks(study_vcfs)
-        phasing_ch = ref_vcfs.join(study_chunks.transpose(), by:[0, 1])
+        chunks_all = study_chunks.flatMap { chunks, chromosome, sex_id, vcf, vcf_index ->
+        chunks.collect { chunk -> [chromosome, sex_id, chunk, vcf, vcf_index] }
+        }
+        phasing_ch = ref_vcfs.combine(chunks_all, by:[0, 1])
         phased_chunks = eagle_phasing(phasing_ch)
         ligate(phased_chunks.groupTuple())
 }
