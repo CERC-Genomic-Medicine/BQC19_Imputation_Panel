@@ -118,7 +118,7 @@ process eagle_phasing{
     stop_w_overlap=\$((stop_bp+5000000))
     bcftools -r \${chrom}:\${start_bp}-\${stop_bp} ${study_vcf.getBaseName()}.vcf.gz -Oz -o \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz 
     bcftools index --tbi \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz
-    ${params.eagle} --vcfRef ${ref_vcf.getBaseName()}.vcf.gz --vcfTarget \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz --numThreads 4 --geneticMapFile ${params.genetic_map} --outPrefix \${chrom}_\${start_bp}_\${stop_bp}.phased --bpStart \${start_bp} --bpEnd \${stop_w_overlap} --allowRefAltSwap --vcfOutFormat z
+    ${params.eagle} --vcfRef ${ref_vcf.getBaseName()}.vcf.gz --vcfTarget \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz --numThreads 4 --geneticMapFile ${params.genetic_map} --outPrefix \${chrom}_\${start_bp}_\${stop_bp}.phased --chrom ${chromosome} --bpStart \${start_bp} --bpEnd \${stop_w_overlap} --allowRefAltSwap --vcfOutFormat z
 
     paste chroms2.txt chroms1.txt > chr_name_conv.txt   
 
@@ -134,7 +134,7 @@ process eagle_phasing{
     stop_w_overlap=\$((stop_bp + 5000000))
     bcftools view -r \${chrom}:\${start_bp}-\${stop_bp} ${study_vcf} -Oz -o \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz 
     bcftools index --tbi \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz
-    ${params.eagle} --vcfRef ${ref_vcf} --vcfTarget \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz --numThreads 4 --geneticMapFile ${params.genetic_map} --outPrefix \${chrom}_\${start_bp}_\${stop_bp}.phased.final --bpStart \${start_bp} --bpEnd \${stop_w_overlap} --allowRefAltSwap --vcfOutFormat z
+    ${params.eagle} --vcfRef ${ref_vcf} --vcfTarget \${chrom}_\${start_bp}_\${stop_bp}.vcf.gz --numThreads 4 --geneticMapFile ${params.genetic_map} --outPrefix \${chrom}_\${start_bp}_\${stop_bp}.phased.final --chrom ${chromosome} --bpStart \${start_bp} --bpEnd \${stop_w_overlap} --allowRefAltSwap --vcfOutFormat z
     bcftools index --tbi \${chrom}_\${start_bp}_\${stop_bp}.phased.final.vcf.gz
     """
     }
