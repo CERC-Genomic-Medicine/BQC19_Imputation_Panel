@@ -225,8 +225,10 @@ process minimac_imputation{
     chrom=`head -n1 ${chunk} | cut -f1`
     start_bp=`head -n1 ${chunk} | cut -f2`
 	stop_bp=`head -n1 ${chunk} | cut -f3`
-    bcftools view -r \${chrom}:\${start_bp}-\${stop_bp} ${study_vcf.getBaseName()}.vcf.gz --start \${start_bp} --end \${stop_bp}
---window 500000 -Oz -o study.\${chrom}_\${start_bp}_\${stop_bp}.vcf.gz 
+    bcftools view -r \${chrom}:\${start_bp}-\${stop_bp} ${study_vcf} -Oz -o study.\${chrom}_\${start_bp}_\${stop_bp}.vcf.gz 
+    bcftools index --tbi study.\${chrom}_\${start_bp}_\${stop_bp}.vcf.gz
+
+    ${params.minimac4} --refHaps $ref_vcf --haps study.\${chrom}_\${start_bp}_\${stop_bp}.vcf.gz  --chr \${chrom} --start \${start_bp} --end \${stop_bp} --minRatio 0.00001 --prefix study.\${chrom}_\${start_bp}_\${stop_bp} --cpus 4  --meta --ignoreDuplicates
 
     echo "chrX" > chroms1.txt
     echo "X" > chroms2.txt
