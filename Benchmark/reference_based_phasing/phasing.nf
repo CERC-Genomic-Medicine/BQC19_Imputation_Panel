@@ -95,7 +95,7 @@ process eagle_phasing{
     tuple val(chromosome), val(sex_id), path(ref_vcf), path(ref_vcf_index), path(chunk), path(study_vcf), path(study_vcf_index) 
         
     output:
-    tuple val(chromosome), path("*.phased.final.vcf.gz"), path("*.phased.final.vcf.gz.tbi")
+    tuple val(chromosome), val(sex_id), path("*.phased.final.vcf.gz"), path("*.phased.final.vcf.gz.tbi")
     publishDir "phased_vcfs_chunks/", pattern: "*.vcf.gz*", mode: "copy"
 
     script:
@@ -154,18 +154,32 @@ process ligate {
 	time "12h"
 
 	input:
-	tuple val(chromosome), path(phased_vcfs), path(phased_vcfs_index)
+	tuple val(chromosome), val(sex_id), path(phased_vcfs), path(phased_vcfs_index)
 
 	output:
 	tuple path("*.phased.vcf.gz"), path("*.phased.vcf.gz.tbi")
 
 	publishDir "phased_vcfs/", pattern: "*.vcf.gz*", mode: "copy"
 
+    script:
+    if(params.chromosomeX == true){
 	"""
 	for f in ${phased_vcfs}; do echo \${f}; done | sort -V > files_list.txt
 	bcftools concat -f files_list.txt -l -Oz -o ${chromosome}.phased.vcf.gz
 	bcftools index --tbi ${chromosome}.phased.vcf.gz
 	"""
+    }else {
+    """
+    if [ "${sex_id}" == "true" ]; then
+        sex="female"
+    else
+        sex="male"
+    fi
+    for f in ${phased_vcfs}; do echo \${f}; done | sort -V > files_list.txt
+	bcftools concat -f files_list.txt -l -Oz -o ${chromosome}.\${sex}.phased.vcf.gz
+	bcftools index --tbi ${chromosome}.\${sex}.phased.vcf.gz
+	"""
+    }
 }
 
 workflow {
@@ -180,5 +194,5 @@ workflow {
         }
         phasing_ch = ref_vcfs.combine(chunks_all, by:[0, 1])
         phased_chunks = eagle_phasing(phasing_ch)
-        ligate(phased_chunks.groupTuple())
+        ligate(phased_chunks.groupTuple(by:[0, 1]))
 }

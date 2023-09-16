@@ -191,7 +191,7 @@ process minimac_imputation{
     tuple val(chr_name), val(sex_id), file(ref_vcf), path(chunk), file(study_vcf), file(study_vcf_index)
      
     output:
-    tuple val(chr_name), path("*.imp.dose.vcf.gz"), path("*.imp.dose.vcf.gz.tbi"), path("*.imp.empiricalDose.vcf.gz"), path("*.imp.empiricalDose.vcf.gz.tbi"), path("*.info")
+    tuple val(chr_name), val(sex_id), path("*.imp.dose.vcf.gz"), path("*.imp.dose.vcf.gz.tbi"), path("*.imp.empiricalDose.vcf.gz"), path("*.imp.empiricalDose.vcf.gz.tbi"), path("*.info")
 
     publishDir "imputed_dose_vcfs/", pattern: "*.imp.dose.vcf.gz*", mode: "copy"
     publishDir "empirical_dose_vcfs/", pattern: "*.imp.empiricalDose.vcf.gz*", mode: "copy"
@@ -249,25 +249,45 @@ process ligate {
 	cache "lenient"
 	scratch true
 	cpus 1
-	memory "32G"
-	time "12h"
+	memory "256G"
+	time "2h"
 
 	input:
-	tuple val(chromosome), path(imputed_vcfs), path(imputed_vcfs_index), path(imputed_emp_vcfs), path(imputed_emp_vcfs_index), path(info)
+	tuple val(chromosome), val(sex_id), path(imputed_vcfs), path(imputed_vcfs_index), path(imputed_emp_vcfs), path(imputed_emp_vcfs_index), path(info)
 
 	output:
 	tuple path("*.imputed.dose.vcf.gz"), path("*.imputed.dose.vcf.gz.tbi"), path("*.imputed.empiricalDose.vcf.gz"), path("*.imputed.empiricalDose.vcf.gz.tbi")
 
 	publishDir "final_imputed_vcfs/", pattern: "*.vcf.gz*", mode: "copy"
 
+    script:
+    if (params.chrX == false) {
 	"""
+    chrom=\$(echo -n "${chromosome}" | tr -d '\n')
 	for f in ${imputed_vcfs}; do echo \${f}; done | sort -V > files_list.txt
-	bcftools concat -f files_list.txt -l -Oz -o ${chromosome}.imputed.dose.vcf.gz
-	bcftools index --tbi ${chromosome}.imputed.dose.vcf.gz
+	bcftools concat -f files_list.txt -l -Oz -o \${chrom}.imputed.dose.vcf.gz
+	bcftools index --tbi \${chrom}.imputed.dose.vcf.gz
 	for f in ${imputed_emp_vcfs}; do echo \${f}; done | sort -V > files_list.txt
-    bcftools concat -f files_list.txt -l -Oz -o ${chromosome}.imputed.empiricalDose.vcf.gz
-    bcftools index --tbi ${chromosome}.imputed.empiricalDose.vcf.gz
+    bcftools concat -f files_list.txt -l -Oz -o \${chrom}.imputed.empiricalDose.vcf.gz
+    bcftools index --tbi \${chrom}.imputed.empiricalDose.vcf.gz
 	"""
+    } else {
+    """
+    if [ "${sex_id}" == "true" ]; then
+        sex="female"
+    else
+        sex="male"
+    fi
+    chrom=\$(echo -n "${chromosome}" | tr -d '\n')
+	for f in ${imputed_vcfs}; do echo \${f}; done | sort -V > files_list.txt
+	bcftools concat -f files_list.txt -l -Oz -o \${chrom}.\${sex}.imputed.dose.vcf.gz
+	bcftools index --tbi \${chrom}.\${sex}.imputed.dose.vcf.gz
+	for f in ${imputed_emp_vcfs}; do echo \${f}; done | sort -V > files_list.txt
+    bcftools concat -f files_list.txt -l -Oz -o \${chrom}.\${sex}.imputed.empiricalDose.vcf.gz
+    bcftools index --tbi \${chrom}.\${sex}.imputed.empiricalDose.vcf.gz
+	"""
+    }
+
 }
 
 
@@ -299,6 +319,6 @@ workflow {
         }
         imputation_ch = ref_cnv_vcfs.combine(chunks_all_study, by:[0, 1])
         imputed_chunks = minimac_imputation(imputation_ch)
-        ligate(imputed_chunks.groupTuple())
+        ligate(imputed_chunks.groupTuple(by: [0, 1]))
 
 }
