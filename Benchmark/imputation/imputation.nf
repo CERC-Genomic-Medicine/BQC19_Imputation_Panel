@@ -307,10 +307,6 @@ workflow {
         study_rm_chr_vcfs = rm_chr_name_study(study_vcfs)
 
         study_chunk_ch = chromosome_sizes.join(study_rm_chr_vcfs, by:[0])
-        //ref_chunks = get_chunks_ref(ref_rm_chr_vcfs)
-        //chunks_all_ref = ref_chunks.flatMap { chunks, chromosome, sex_id, vcf, vcf_index ->
-        //chunks.collect { chunk -> [chunk, chromosome, sex_id, vcf, vcf_index] }
-        //}
         ref_cnv_vcfs = convert_ref_vcf(ref_rm_chr_vcfs)
 
         study_chunks = get_chunks_study(study_chunk_ch)
