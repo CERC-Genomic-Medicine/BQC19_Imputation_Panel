@@ -250,7 +250,7 @@ process ligate {
 	scratch true
 	cpus 1
 	memory "256G"
-	time "2h"
+	time "5h"
 
 	input:
 	tuple val(chromosome), val(sex_id), path(imputed_vcfs), path(imputed_vcfs_index), path(imputed_emp_vcfs), path(imputed_emp_vcfs_index), path(info)
