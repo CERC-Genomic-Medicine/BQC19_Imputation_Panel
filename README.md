@@ -23,7 +23,7 @@ Combine results from multiple imputation panels to enhance data integrity and qu
 Assess and validate the performance of your imputation, ensuring confidence in your results. ([Imputed vs Truth](https://github.com/CERC-Genomic-Medicine/BQC19_Imputation_Panel/tree/master/Benchmark/imputed_vs_truth), [Imputed vs Imputed](https://github.com/CERC-Genomic-Medicine/BQC19_Imputation_Panel/tree/master/Benchmark/imputed_vs_imputed))
 
 ## Getting Started
-To get started, please refer to each pipeline README.md file.
+To get started, please refer to each pipeline's README.md file.
 
 ## Support and Contact
 Questions? Issues? We are here to help! Feel free to [open an issue](https://github.com/CERC-Genomic-Medicine/BQC19_Imputation_Panel/issues) on our GitHub repository, or contact me directly at [mohadese.sayahiandehkordi@mail.mcgill.ca](mailto:mohadese.sayahiandehkordi@mail.mcgill.ca). We welcome your feedback and are committed to providing support to ensure your success with our pipelines.
