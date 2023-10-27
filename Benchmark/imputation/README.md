@@ -65,3 +65,5 @@ Make sure you have the following dependencies installed:
 
 Acknowledgements
 We would like to acknowledge the developers of Minimac software for providing the tools necessary for imputation. Their contribution is greatly appreciated.
+
+Author: Mohadese Sayahian Dehkordi (mohadese.sayahiandehkordi@mail.mcgill.ca)
