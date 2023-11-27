@@ -28,8 +28,5 @@ To get started, please refer to each pipeline's README.md file.
 ## Support and Contact
 Questions? Issues? We are here to help! Feel free to [open an issue](https://github.com/CERC-Genomic-Medicine/BQC19_Imputation_Panel/issues) on our GitHub repository, or contact me directly at [mohadese.sayahiandehkordi@mail.mcgill.ca](mailto:mohadese.sayahiandehkordi@mail.mcgill.ca). We welcome your feedback and are committed to providing support to ensure your success with our pipelines.
 
-Thank you for choosing Imputation Pipelines for your genomic data analysis needs. We look forward to contributing to your research and discoveries.
-
-
 Author: Mohadese Sayahian Dehkordi
 
