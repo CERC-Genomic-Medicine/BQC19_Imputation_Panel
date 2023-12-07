@@ -64,6 +64,6 @@ Make sure you have the following dependencies installed:
 - [tabix](https://howtoinstall.co/en/tabix)
 
 Acknowledgements
-We would like to acknowledge the developers of Minimac software for providing the tools necessary for imputation. Their contribution is greatly appreciated.
+We would like to acknowledge the developers of Minimac software for providing the tools necessary for imputation.
 
 Author: Mohadese Sayahian Dehkordi (mohadese.sayahiandehkordi@mail.mcgill.ca)
